@@ -76,9 +76,5 @@ export default function Map() {
     });
   });
 
-  return (
-    <div>
-      <div ref={mapContainer} className="map-container" />
-    </div>
-  );
+  return <div ref={mapContainer} className="h-full w-full" />;
 }
