@@ -1,10 +1,12 @@
 import "./App.css";
-import Map from "./Map";
+import ActivityList from "./ActivityList";
+// import Map from "./Map";
 
 function App() {
   return (
     <div className="page-container">
-      <Map />
+      <ActivityList />
+      {/* <Map /> */}
     </div>
   );
 }

@@ -7,9 +7,9 @@ import { JSDOM } from "jsdom";
 function convertGpxToGeoJson(gpxFilePath: string, geoJsonFilePath: string) {
   const gpxData = fs.readFileSync(gpxFilePath, "utf-8");
 
-  const geoJson = {
+  const featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> = {
     type: "FeatureCollection",
-    features: [] as GeoJSON.Feature[],
+    features: [],
   };
 
   const { document } = new JSDOM(gpxData, { contentType: "text/xml" }).window;
@@ -29,24 +29,29 @@ function convertGpxToGeoJson(gpxFilePath: string, geoJsonFilePath: string) {
 
         const lat = parseFloat(latAttr);
         const lon = parseFloat(lonAttr);
-        const feature: GeoJSON.Feature = {
+        const ele = Number(
+          trkptElement.getElementsByTagName("ele")[0]?.textContent
+        );
+        const time = trkptElement.getElementsByTagName("time")[0]?.textContent;
+
+        const feature: GeoJSON.Feature<GeoJSON.Point> = {
           type: "Feature",
           geometry: {
             type: "Point",
             coordinates: [lon, lat],
           },
           properties: {
-            ele: trkptElement.getElementsByTagName("ele")[0]?.textContent,
-            time: trkptElement.getElementsByTagName("time")[0]?.textContent,
+            ele,
+            time,
           },
         };
 
-        geoJson.features.push(feature);
+        featureCollection.features.push(feature);
       }
     }
   }
 
-  fs.writeFileSync(geoJsonFilePath, JSON.stringify(geoJson));
+  fs.writeFileSync(geoJsonFilePath, JSON.stringify(featureCollection));
 
   console.log("Conversion complete!");
 }
