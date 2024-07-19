@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import { getActivities } from "./api";
 import { Activity } from "./types";
-
-const activities = getActivities();
+import { Link, useLoaderData } from "react-router-dom";
 
 type SortKey = "activity_name" | "activity_date" | "activity_type";
 type SortType = "asc" | "desc";
 
 function filterAndSortActivities(
+  activities: Activity[],
   filterText: string,
   sortKey: SortKey,
   sortType: SortType
@@ -35,12 +35,21 @@ function filterAndSortActivities(
   return filteredActivities;
 }
 
+interface ActivityLoader {
+  activities: Activity[];
+}
+
+export function loader(): ActivityLoader {
+  return { activities: getActivities() };
+}
+
 const ActivityList = () => {
+  const { activities } = useLoaderData() as ActivityLoader;
   const [sortKey, setSortKey] = useState<SortKey>("activity_date");
   const [sortType, setSortType] = useState<SortType>("asc");
   const [filterText, setFilterText] = useState("");
   const [activitiesToRender, setActivitiesToRender] = useState(
-    filterAndSortActivities(filterText, sortKey, sortType)
+    filterAndSortActivities(activities, filterText, sortKey, sortType)
   );
 
   const handleSort = (key: SortKey) => {
@@ -59,33 +68,53 @@ const ActivityList = () => {
 
   useEffect(() => {
     const newActivities = filterAndSortActivities(
+      activities,
       filterText,
       sortKey,
       sortType
     );
     setActivitiesToRender(newActivities);
-  }, [filterText, sortKey, sortType]);
+  }, [activities, filterText, sortKey, sortType]);
 
   return (
-    <div>
+    <div className="p-4">
       <input
         type="text"
         placeholder="Filter activities"
         value={filterText}
         onChange={(e) => handleFilter(e.target.value)}
+        className="p-2 mb-4 border border-gray-300 rounded-md"
       />
-      <table className="table-auto">
+
+      <table className="table-auto w-full border-">
         <thead>
           <tr>
-            <th onClick={() => handleSort("activity_name")}>Name</th>
-            <th onClick={() => handleSort("activity_type")}>Type</th>
-            <th onClick={() => handleSort("activity_date")}>Date</th>
+            <th
+              onClick={() => handleSort("activity_name")}
+              className="text-left cursor-pointer"
+            >
+              Name
+            </th>
+            <th
+              onClick={() => handleSort("activity_type")}
+              className="text-left cursor-pointer"
+            >
+              Type
+            </th>
+            <th
+              onClick={() => handleSort("activity_date")}
+              className="text-left cursor-pointer"
+            >
+              Date
+            </th>
           </tr>
         </thead>
         <tbody>
           {activitiesToRender.map((a) => (
             <tr key={a.activity_id}>
-              <td>{a.activity_name}</td>
+              <td className="py-2">
+                <Link to={`/activity/${a.activity_id}`}>{a.activity_name}</Link>
+              </td>
               <td>{a.activity_type}</td>
               <td>{a.activity_date}</td>
             </tr>

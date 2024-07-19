@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
-import "./Map.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getActivityGeojson } from "./api";
 
