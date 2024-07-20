@@ -111,16 +111,12 @@ const ActivityList = () => {
         </thead>
         <tbody>
           {activitiesToRender.map((a) => (
-            <tr>
-              <td className="py-2" key={a.activity_id}>
+            <tr key={a.activity_id}>
+              <td className="py-2">
                 <Link to={`/activity/${a.activity_id}`}>{a.activity_name}</Link>
               </td>
-              <td className="py-2" key={a.activity_id}>
-                {a.activity_type}
-              </td>
-              <td className="py-2 text-right" key={a.activity_id}>
-                {a.activity_date}
-              </td>
+              <td className="py-2">{a.activity_type}</td>
+              <td className="py-2 text-right">{a.activity_date}</td>
             </tr>
           ))}
         </tbody>
