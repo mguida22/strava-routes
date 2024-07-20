@@ -5,6 +5,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";
 
+const DEFAULT_PADDING = 0.02;
+
 function getBoundingBoxFromFeatureCollection(
   geojson: GeoJSON.FeatureCollection<GeoJSON.Point>
 ): LngLatBoundsLike {
@@ -16,10 +18,10 @@ function getBoundingBoxFromFeatureCollection(
   for (let feature of geojson.features) {
     const coords = feature.geometry.coordinates;
 
-    minLat = Math.min(minLat, coords[1]);
-    maxLat = Math.max(maxLat, coords[1]);
-    minLon = Math.min(minLon, coords[0]);
-    maxLon = Math.max(maxLon, coords[0]);
+    minLat = Math.min(minLat, coords[1] - DEFAULT_PADDING);
+    maxLat = Math.max(maxLat, coords[1] + DEFAULT_PADDING);
+    minLon = Math.min(minLon, coords[0] - DEFAULT_PADDING);
+    maxLon = Math.max(maxLon, coords[0] + DEFAULT_PADDING);
   }
 
   return [
