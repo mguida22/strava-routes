@@ -6,7 +6,7 @@ function App() {
       <header className="fixed top-0 start-0 z-50 w-full p-4 border-b border-gray-200 bg-gray-50">
         <h1 className="text-3xl font-bold ">Activity Tracker</h1>
       </header>
-      <main className="flex items-center mx-auto pt-20">
+      <main className="flex items-center mx-auto pt-16">
         <Outlet />
       </main>
     </div>

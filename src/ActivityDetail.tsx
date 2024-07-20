@@ -21,9 +21,8 @@ function ActivityDetail() {
 
   return (
     <div className="w-full h-full">
-      <h1>Activity Detail</h1>
       {activityGeojson != null ? (
-        <div className="w-full h-[600px]">
+        <div className="w-full h-[calc(100vh-64px)]">
           <ActivityMap activityGeojson={activityGeojson} />
         </div>
       ) : (
