@@ -4,9 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import App from "./App.tsx";
 import ErrorPage from "./ErrorPage.tsx";
-import ActivityDetail, {
-  loader as activityDetailLoader,
-} from "./ActivityDetail.tsx";
+import ActivityDetailPage, {
+  loader as activityDetailPageLoader,
+} from "./ActivityDetailPage.tsx";
 import ActivityList, { loader as activityListLoader } from "./ActivityList.tsx";
 
 const router = createBrowserRouter([
@@ -16,14 +16,14 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/activities",
+        path: "/",
         element: <ActivityList />,
         loader: activityListLoader,
       },
       {
         path: "/activity/:id",
-        element: <ActivityDetail />,
-        loader: activityDetailLoader,
+        element: <ActivityDetailPage />,
+        loader: activityDetailPageLoader,
       },
     ],
   },

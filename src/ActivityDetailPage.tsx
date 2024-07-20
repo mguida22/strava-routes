@@ -2,13 +2,13 @@ import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import ActivityMap from "./Map";
 import { getActivityGeojson } from "./api";
 
-interface ActivityDetailLoader {
+interface ActivityDetailPageLoader {
   activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
 }
 
 export async function loader({
   params,
-}: LoaderFunctionArgs): Promise<ActivityDetailLoader> {
+}: LoaderFunctionArgs): Promise<ActivityDetailPageLoader> {
   if (params.id == null) return { activityGeojson: null };
 
   const activityGeojson = await getActivityGeojson(params.id);
@@ -16,8 +16,8 @@ export async function loader({
   return { activityGeojson };
 }
 
-function ActivityDetail() {
-  const { activityGeojson } = useLoaderData() as ActivityDetailLoader;
+function ActivityDetailPage() {
+  const { activityGeojson } = useLoaderData() as ActivityDetailPageLoader;
 
   return (
     <div className="w-full h-full">
@@ -32,4 +32,4 @@ function ActivityDetail() {
   );
 }
 
-export default ActivityDetail;
+export default ActivityDetailPage;
