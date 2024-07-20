@@ -1,4 +1,4 @@
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getActivities } from "./api";
 import { Activity } from "./types";
 import { Link, useLoaderData } from "react-router-dom";

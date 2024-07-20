@@ -1,13 +1,10 @@
-import activityJson from "../public/activity.json";
 import activitiesJson from "../public/activities.json";
 import { Activity } from "./types";
 
 type ActivityFormat = GeoJSON.FeatureCollection<GeoJSON.Point>;
 
-const activityGeojson = activityJson as unknown as ActivityFormat;
-
-function getActivityGeojson(): ActivityFormat {
-  return activityGeojson;
+async function getActivityGeojson(activityId: string): Promise<ActivityFormat> {
+  return await import(`../public/activities/${activityId}.json`);
 }
 
 function getActivities(): Activity[] {

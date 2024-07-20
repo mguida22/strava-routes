@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
 import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getActivityGeojson } from "./api";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";
@@ -29,11 +28,13 @@ function getBoundingBoxFromFeatureCollection(
   ];
 }
 
-export default function Map() {
+interface ActivityMapProps {
+  activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point>;
+}
+
+export default function ActivityMap({ activityGeojson }: ActivityMapProps) {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
-
-  const activityGeojson = getActivityGeojson();
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
