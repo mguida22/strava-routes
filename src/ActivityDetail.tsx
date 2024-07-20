@@ -4,7 +4,7 @@ function ActivityDetail() {
   return (
     <div className="w-full h-full">
       <h1>Activity Detail</h1>
-      <div className="w-full h-[800px]">
+      <div className="w-full h-[600px]">
         <Map />
       </div>
     </div>
