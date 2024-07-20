@@ -4,7 +4,10 @@ import { Activity } from "./types";
 type ActivityFormat = GeoJSON.FeatureCollection<GeoJSON.Point>;
 
 async function getActivityGeojson(activityId: string): Promise<ActivityFormat> {
-  return await import(`../public/activities/${activityId}.json`);
+  return await import(`../public/activities/${activityId}.json`).catch(() => {
+    // file probably doesn't exist (or it's corrupted). Either way skip
+    return null;
+  });
 }
 
 function getActivities(): Activity[] {
