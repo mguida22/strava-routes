@@ -77,7 +77,7 @@ const ActivityList = () => {
   }, [activities, filterText, sortKey, sortType]);
 
   return (
-    <div className="p-4">
+    <div className="w-full p-16">
       <input
         type="text"
         placeholder="Filter activities"
@@ -86,7 +86,7 @@ const ActivityList = () => {
         className="p-2 mb-4 border border-gray-300 rounded-md"
       />
 
-      <table className="table-auto w-full border-">
+      <table className="table-auto w-full">
         <thead>
           <tr>
             <th
@@ -103,7 +103,7 @@ const ActivityList = () => {
             </th>
             <th
               onClick={() => handleSort("activity_date")}
-              className="text-left cursor-pointer"
+              className="text-right cursor-pointer"
             >
               Date
             </th>
@@ -111,12 +111,16 @@ const ActivityList = () => {
         </thead>
         <tbody>
           {activitiesToRender.map((a) => (
-            <tr key={a.activity_id}>
-              <td className="py-2">
+            <tr>
+              <td className="py-2" key={a.activity_id}>
                 <Link to={`/activity/${a.activity_id}`}>{a.activity_name}</Link>
               </td>
-              <td>{a.activity_type}</td>
-              <td>{a.activity_date}</td>
+              <td className="py-2" key={a.activity_id}>
+                {a.activity_type}
+              </td>
+              <td className="py-2 text-right" key={a.activity_id}>
+                {a.activity_date}
+              </td>
             </tr>
           ))}
         </tbody>
