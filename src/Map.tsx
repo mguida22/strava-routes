@@ -30,6 +30,25 @@ function getBoundingBoxFromFeatureCollection(
   ];
 }
 
+function getElevationBounds(
+  activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point>
+) {
+  let low = Infinity;
+  let high = -Infinity;
+
+  for (let feature of activityGeojson.features) {
+    const ele = feature.properties?.ele;
+    if (ele == null) continue;
+
+    low = Math.min(low, ele);
+    high = Math.max(high, ele);
+  }
+
+  const middle = Math.floor((low + high) / 2);
+
+  return { low, middle, high };
+}
+
 interface ActivityMapProps {
   activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point>;
 }
@@ -57,6 +76,7 @@ export default function ActivityMap({ activityGeojson }: ActivityMapProps) {
         data: activityGeojson,
       });
 
+      const { low, middle, high } = getElevationBounds(activityGeojson);
       map.current.addLayer({
         id: "route-layer",
         source: "route-source",
@@ -67,12 +87,12 @@ export default function ActivityMap({ activityGeojson }: ActivityMapProps) {
             "interpolate",
             ["linear"],
             ["get", "ele"],
-            0,
-            "green",
-            40,
-            "yellow",
-            100,
-            "red",
+            low,
+            "#fff33b",
+            middle,
+            "#f3903f",
+            high,
+            "#e93e3a",
           ],
         },
       });
