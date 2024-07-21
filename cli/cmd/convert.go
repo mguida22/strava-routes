@@ -14,8 +14,6 @@ import (
 	"strconv"
 	"strings"
 
-	// "encoding/json"
-
 	"github.com/spf13/cobra"
 )
 
@@ -25,14 +23,14 @@ type Properties struct {
 }
 
 type Geometry struct {
-	Type        string     `json:"type"`
-	Coordinates []float64  `json:"coordinates"`
-	Properties  Properties `json:"properties"`
+	Type        string    `json:"type"`
+	Coordinates []float64 `json:"coordinates"`
 }
 
 type Feature struct {
-	Type     string   `json:"type"`
-	Geometry Geometry `json:"geometry"`
+	Type       string     `json:"type"`
+	Geometry   Geometry   `json:"geometry"`
+	Properties Properties `json:"properties"`
 }
 
 type FeatureCollection struct {
@@ -97,15 +95,15 @@ func convertGPXToJSON(gpxData []byte) ([]byte, error) {
 						lon,
 						lat,
 					},
-					Properties: Properties{
-						Ele:  ele,
-						Time: time,
-					},
 				}
 
 				feature := Feature{
 					Type:     "Feature",
 					Geometry: geometry,
+					Properties: Properties{
+						Ele:  ele,
+						Time: time,
+					},
 				}
 
 				features = append(features, feature)
