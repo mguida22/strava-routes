@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
+func HttpServer(addr string) *http.Server {
 	r := mux.NewRouter()
 
 	r.Use(loggingMiddleware)
@@ -16,8 +16,10 @@ func main() {
 	r.HandleFunc("/{userId}/activities", activitiesHandler).Methods("GET")
 	r.HandleFunc("/{userId}/activities/{activityId}", activityHandler).Methods("GET")
 
-	log.Println("Server started on port 8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	return &http.Server{
+		Addr:    addr,
+		Handler: r,
+	}
 }
 
 func loggingMiddleware(next http.Handler) http.Handler {
@@ -25,19 +27,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		log.Printf("%s %s", r.Method, r.URL.Path)
 		next.ServeHTTP(w, r)
 	})
-}
-
-func activitiesHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userId := vars["userId"]
-	w.Write([]byte("List of activities for user ID: " + userId))
-}
-
-func activityHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	userID := vars["userId"]
-	activityID := vars["activityId"]
-	w.Write([]byte("Activity ID: " + activityID + " for user ID: " + userID))
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
