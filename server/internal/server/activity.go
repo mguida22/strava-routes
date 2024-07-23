@@ -8,7 +8,8 @@ import (
 
 func activityHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userID := vars["userId"]
 	activityID := vars["activityId"]
-	w.Write([]byte("Activity ID: " + activityID + " for user ID: " + userID))
+
+	fp := "data/activities/" + activityID + ".json"
+	http.ServeFile(w, r, fp)
 }
