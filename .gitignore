@@ -26,5 +26,5 @@ dist-ssr
 .env
 
 data/
-public/activities/
-public/activities.json
+frontend/public/activities/
+frontend/public/activities.json
