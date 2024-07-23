@@ -1,3 +1,5 @@
+export type ActivityPath = GeoJSON.FeatureCollection<GeoJSON.Point>;
+
 export interface Activity {
   activity_id: string;
   activity_date: string;

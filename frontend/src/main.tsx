@@ -8,6 +8,9 @@ import ActivityDetailPage, {
   loader as activityDetailPageLoader,
 } from "./ActivityDetailPage.tsx";
 import ActivityList, { loader as activityListLoader } from "./ActivityList.tsx";
+import ActivitiesMapPage, {
+  loader as activitiesMapPageLoader,
+} from "./ActivitiesMapPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +22,11 @@ const router = createBrowserRouter([
         path: "/",
         element: <ActivityList />,
         loader: activityListLoader,
+      },
+      {
+        path: "/map",
+        element: <ActivitiesMapPage />,
+        loader: activitiesMapPageLoader,
       },
       {
         path: "/activity/:id",

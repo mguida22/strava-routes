@@ -15,8 +15,9 @@ async function getActivityGeojson(
   );
 
   if (!response.ok) {
-    console.error(response.status, response.statusText);
-    return null;
+    throw new Error(
+      `Couldn't fetch geojson for activity_id:${activityId}. Received status ${response.status}, ${response.statusText}`
+    );
   }
 
   return await response.json();

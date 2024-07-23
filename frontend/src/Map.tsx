@@ -1,21 +1,25 @@
 import { useRef, useEffect } from "react";
-import mapboxgl, { LngLatBoundsLike } from "mapbox-gl";
+import mapboxgl, { LngLatBoundsLike, GeoJSONSource } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { ActivityPath } from "./types";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";
 
 const DEFAULT_PADDING = 0.02;
 
-function getBoundingBoxFromFeatureCollection(
-  geojson: GeoJSON.FeatureCollection<GeoJSON.Point>
-): LngLatBoundsLike {
+function getBoundingBoxFromFeatureCollections(
+  paths: ActivityPath[]
+): LngLatBoundsLike | undefined {
+  if (paths.length === 0) return undefined;
+
   let minLat = Infinity;
   let maxLat = -Infinity;
   let minLon = Infinity;
   let maxLon = -Infinity;
 
-  for (let feature of geojson.features) {
+  const path = paths[0];
+  for (let feature of path.features) {
     const coords = feature.geometry.coordinates;
 
     minLat = Math.min(minLat, coords[1] - DEFAULT_PADDING);
@@ -30,18 +34,22 @@ function getBoundingBoxFromFeatureCollection(
   ];
 }
 
-function getElevationBounds(
-  activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point>
-) {
+function getElevationBounds(paths: ActivityPath[]) {
+  if (paths.length === 0) return { low: 0, middle: 0, high: 0 };
+
   let low = Infinity;
   let high = -Infinity;
 
-  for (let feature of activityGeojson.features) {
-    const ele = feature.properties?.ele;
-    if (ele == null) continue;
+  for (let path of paths) {
+    if (path.features == null) continue;
 
-    low = Math.min(low, ele);
-    high = Math.max(high, ele);
+    for (let feature of path.features) {
+      const ele = feature.properties?.ele;
+      if (ele == null) continue;
+
+      low = Math.min(low, ele);
+      high = Math.max(high, ele);
+    }
   }
 
   const middle = Math.floor((low + high) / 2);
@@ -49,11 +57,22 @@ function getElevationBounds(
   return { low, middle, high };
 }
 
-interface ActivityMapProps {
-  activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point>;
+function geojsonFromActivityPaths(
+  paths: ActivityPath[]
+): GeoJSON.FeatureCollection {
+  const features =
+    paths.length > 0 ? paths.flatMap((path) => path.features) : [];
+  return {
+    type: "FeatureCollection",
+    features,
+  };
 }
 
-export default function ActivityMap({ activityGeojson }: ActivityMapProps) {
+interface ActivityMapProps {
+  activityPaths: ActivityPath[];
+}
+
+export default function ActivityMap({ activityPaths }: ActivityMapProps) {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -63,41 +82,58 @@ export default function ActivityMap({ activityGeojson }: ActivityMapProps) {
     map.current = new mapboxgl.Map({
       container: mapContainer.current ?? "",
       style: "mapbox://styles/mapbox/outdoors-v12",
-      bounds: getBoundingBoxFromFeatureCollection(activityGeojson),
+      bounds: getBoundingBoxFromFeatureCollections(activityPaths),
       zoom: 11,
       attributionControl: false,
     });
+  }, []);
 
-    map.current.on("load", async () => {
-      if (map.current === null) return;
+  useEffect(() => {
+    if (map.current === null) return;
+    if (activityPaths.length === 0) return;
 
+    const routeSource = map.current.getSource("route-source") as GeoJSONSource;
+    if (routeSource != null) {
+      routeSource.setData(geojsonFromActivityPaths(activityPaths));
+    } else {
       map.current.addSource("route-source", {
         type: "geojson",
-        data: activityGeojson,
+        data: geojsonFromActivityPaths(activityPaths),
       });
+    }
 
-      const { low, middle, high } = getElevationBounds(activityGeojson);
-      map.current.addLayer({
-        id: "route-layer",
-        source: "route-source",
-        type: "circle",
-        paint: {
-          "circle-radius": 5,
-          "circle-color": [
-            "interpolate",
-            ["linear"],
-            ["get", "ele"],
-            low,
-            "#fff33b",
-            middle,
-            "#f3903f",
-            high,
-            "#e93e3a",
-          ],
-        },
-      });
+    // const routeLayer = map.current.getLayer("route-layer");
+    // if (routeLayer != null) {
+    //   map.current.removeLayer("route-layer");
+    // }
+    const { low, middle, high } = getElevationBounds(activityPaths);
+    map.current.addLayer({
+      id: "route-layer",
+      source: "route-source",
+      type: "circle",
+      paint: {
+        "circle-radius": 5,
+        "circle-color": [
+          "interpolate",
+          ["linear"],
+          ["get", "ele"],
+          low,
+          "#fff33b",
+          middle,
+          "#f3903f",
+          high,
+          "#e93e3a",
+        ],
+      },
     });
-  });
+
+    const bounds = getBoundingBoxFromFeatureCollections(activityPaths);
+    if (bounds) {
+      map.current.fitBounds(bounds, {
+        padding: 20,
+      });
+    }
+  }, [activityPaths]);
 
   return <div ref={mapContainer} className="h-full w-full" />;
 }

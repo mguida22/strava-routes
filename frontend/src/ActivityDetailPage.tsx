@@ -1,12 +1,12 @@
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import ActivityMap from "./Map";
 import { getActivityDetail, getActivityGeojson } from "./api";
-import { Activity } from "./types";
+import { Activity, ActivityPath } from "./types";
 import ActivityDetailOverlay from "./ActivityDetailOverlay";
 
 interface ActivityDetailPageLoader {
   activity: Activity;
-  activityGeojson: GeoJSON.FeatureCollection<GeoJSON.Point> | null;
+  activityPath: ActivityPath | null;
 }
 
 export async function loader({
@@ -15,20 +15,20 @@ export async function loader({
   if (params.id == null) throw new Error("Activity ID is required");
 
   const activity = await getActivityDetail(params.id);
-  const activityGeojson = await getActivityGeojson(params.id);
+  const activityPath = await getActivityGeojson(params.id);
 
-  return { activity, activityGeojson };
+  return { activity, activityPath };
 }
 
 function ActivityDetailPage() {
-  const { activity, activityGeojson } =
+  const { activity, activityPath } =
     useLoaderData() as ActivityDetailPageLoader;
 
   return (
     <>
       <div className="w-full h-[calc(100vh-64px)] relative">
-        {activityGeojson != null ? (
-          <ActivityMap activityGeojson={activityGeojson} />
+        {activityPath != null ? (
+          <ActivityMap activityPaths={[activityPath]} />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <h2 className="text-lg">No map data</h2>
