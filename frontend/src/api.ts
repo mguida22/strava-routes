@@ -1,37 +1,52 @@
-import activitiesJson from "../public/activities.json";
 import { Activity } from "./types";
+
+const SERVER_URL = "http://localhost:8080";
+
+// TODO: placeholder until we have a user system setup
+const USER_ID = 1;
 
 type ActivityFormat = GeoJSON.FeatureCollection<GeoJSON.Point>;
 
 async function getActivityGeojson(
   activityId: string
 ): Promise<ActivityFormat | null> {
-  return await import(`../public/activities/${activityId}.json`).catch(() => {
-    // file probably doesn't exist (or it's corrupted). Either way skip
+  const response = await fetch(
+    `${SERVER_URL}/${USER_ID}/activities/${activityId}`
+  );
+
+  if (!response.ok) {
+    console.error(response.status, response.statusText);
     return null;
-  });
+  }
+
+  return await response.json();
 }
 
-function getActivityDetail(activityId: string): Activity {
-  const activity = activitiesJson.find((a) => a.activity_id === activityId);
+async function getActivityDetail(activityId: string): Promise<Activity> {
+  const allActivities = await getActivities();
+  const activity = allActivities.find((a) => a.activity_id === activityId);
 
   if (activity == null) {
     throw new Error("Activity not found");
   }
 
-  return {
-    ...activity,
-    activity_date_ms: new Date(activity.activity_date).getTime(),
-  };
+  return activity;
 }
 
-function getActivities(): Activity[] {
-  return activitiesJson.map((activity) => {
-    return {
-      ...activity,
-      activity_date_ms: new Date(activity.activity_date).getTime(),
-    };
-  });
+async function getActivities(): Promise<Activity[]> {
+  try {
+    const response = await fetch(`${SERVER_URL}/${USER_ID}/activities`);
+
+    if (!response.ok) {
+      console.error(response.status, response.statusText);
+      throw new Error("Failed to fetch activities");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to fetch activities");
+  }
 }
 
 export { getActivities, getActivityDetail, getActivityGeojson };

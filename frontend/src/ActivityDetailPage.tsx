@@ -14,7 +14,7 @@ export async function loader({
 }: LoaderFunctionArgs): Promise<ActivityDetailPageLoader> {
   if (params.id == null) throw new Error("Activity ID is required");
 
-  const activity = getActivityDetail(params.id);
+  const activity = await getActivityDetail(params.id);
   const activityGeojson = await getActivityGeojson(params.id);
 
   return { activity, activityGeojson };

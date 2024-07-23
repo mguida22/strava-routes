@@ -39,8 +39,8 @@ interface ActivityLoader {
   activities: Activity[];
 }
 
-export function loader(): ActivityLoader {
-  return { activities: getActivities() };
+export async function loader(): Promise<ActivityLoader> {
+  return { activities: await getActivities() };
 }
 
 const ActivityList = () => {
