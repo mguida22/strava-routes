@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 func activitiesHandler(w http.ResponseWriter, r *http.Request) {
@@ -128,11 +129,13 @@ func getActivityJson() ([]byte, error) {
 	}
 
 	type ResponseActivity struct {
-		ActivityID   string `json:"activity_id"`
-		ActivityDate string `json:"activity_date"`
-		ActivityName string `json:"activity_name"`
-		ActivityType string `json:"activity_type"`
-		Distance     string `json:"distance"`
+		ActivityID     string `json:"activity_id"`
+		ActivityDate   string `json:"activity_date"`
+		ActivityDateMs int    `json:"activity_date_ms"`
+		ActivityName   string `json:"activity_name"`
+		ActivityType   string `json:"activity_type"`
+		Distance       string `json:"distance"`
+		MovingTime     string `json:"moving_time"`
 	}
 
 	var activities []Activity
@@ -143,12 +146,21 @@ func getActivityJson() ([]byte, error) {
 
 	var responseActivities []ResponseActivity
 	for _, activity := range activities {
+		activityDate, err := time.Parse("Jan 2, 2006, 3:04:05 PM", activity.ActivityDate)
+		if err != nil {
+			return []byte{}, err
+		}
+
+		activityDateMs := activityDate.UnixNano() / int64(time.Millisecond)
+
 		responseActivities = append(responseActivities, ResponseActivity{
-			ActivityID:   activity.ActivityID,
-			ActivityDate: activity.ActivityDate,
-			ActivityName: activity.ActivityName,
-			ActivityType: activity.ActivityType,
-			Distance:     activity.Distance,
+			ActivityID:     activity.ActivityID,
+			ActivityDate:   activity.ActivityDate,
+			ActivityDateMs: int(activityDateMs),
+			ActivityName:   activity.ActivityName,
+			ActivityType:   activity.ActivityType,
+			Distance:       activity.Distance,
+			MovingTime:     activity.MovingTime,
 		})
 	}
 
