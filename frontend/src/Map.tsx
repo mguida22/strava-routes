@@ -22,39 +22,18 @@ function getBoundingBoxFromFeatureCollections(
   for (let feature of path.features) {
     const coords = feature.geometry.coordinates;
 
-    minLat = Math.min(minLat, coords[1] - DEFAULT_PADDING);
-    maxLat = Math.max(maxLat, coords[1] + DEFAULT_PADDING);
-    minLon = Math.min(minLon, coords[0] - DEFAULT_PADDING);
-    maxLon = Math.max(maxLon, coords[0] + DEFAULT_PADDING);
+    for (let coord of coords) {
+      minLat = Math.min(minLat, coord[1] - DEFAULT_PADDING);
+      maxLat = Math.max(maxLat, coord[1] + DEFAULT_PADDING);
+      minLon = Math.min(minLon, coord[0] - DEFAULT_PADDING);
+      maxLon = Math.max(maxLon, coord[0] + DEFAULT_PADDING);
+    }
   }
 
   return [
     [minLon, minLat],
     [maxLon, maxLat],
   ];
-}
-
-function getElevationBounds(paths: ActivityPath[]) {
-  if (paths.length === 0) return { low: 0, middle: 0, high: 0 };
-
-  let low = Infinity;
-  let high = -Infinity;
-
-  for (let path of paths) {
-    if (path.features == null) continue;
-
-    for (let feature of path.features) {
-      const ele = feature.properties?.ele;
-      if (ele == null) continue;
-
-      low = Math.min(low, ele);
-      high = Math.max(high, ele);
-    }
-  }
-
-  const middle = Math.floor((low + high) / 2);
-
-  return { low, middle, high };
 }
 
 function geojsonFromActivityPaths(
@@ -86,49 +65,46 @@ export default function ActivityMap({ activityPaths }: ActivityMapProps) {
       zoom: 11,
       attributionControl: false,
     });
-  }, []);
 
-  useEffect(() => {
-    if (map.current === null) return;
-    if (activityPaths.length === 0) return;
+    map.current.on("load", () => {
+      if (map.current === null) return;
 
-    const routeSource = map.current.getSource("route-source") as GeoJSONSource;
-    if (routeSource != null) {
-      routeSource.setData(geojsonFromActivityPaths(activityPaths));
-    } else {
       map.current.addSource("route-source", {
         type: "geojson",
         data: geojsonFromActivityPaths(activityPaths),
       });
-    }
 
-    // const routeLayer = map.current.getLayer("route-layer");
-    // if (routeLayer != null) {
-    //   map.current.removeLayer("route-layer");
-    // }
-    const { low, middle, high } = getElevationBounds(activityPaths);
-    map.current.addLayer({
-      id: "route-layer",
-      source: "route-source",
-      type: "circle",
-      paint: {
-        "circle-radius": 5,
-        "circle-color": [
-          "interpolate",
-          ["linear"],
-          ["get", "ele"],
-          low,
-          "#fff33b",
-          middle,
-          "#f3903f",
-          high,
-          "#e93e3a",
-        ],
-      },
+      map.current.addLayer({
+        id: "route-layer",
+        source: "route-source",
+        type: "line",
+        paint: {
+          "line-color": "orange",
+          "line-width": 4,
+        },
+      });
+
+      const bounds = getBoundingBoxFromFeatureCollections(activityPaths);
+      if (bounds) {
+        map.current.fitBounds(bounds, {
+          padding: 20,
+        });
+      }
+
+      map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
     });
+  }, []);
+
+  useEffect(() => {
+    if (map.current === null) return;
+
+    const source = map.current.getSource("route-source") as GeoJSONSource;
+    if (source == null) return;
+
+    source.setData(geojsonFromActivityPaths(activityPaths));
 
     const bounds = getBoundingBoxFromFeatureCollections(activityPaths);
-    if (bounds) {
+    if (bounds != null) {
       map.current.fitBounds(bounds, {
         padding: 20,
       });

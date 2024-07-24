@@ -1,15 +1,13 @@
-import { Activity } from "./types";
+import { Activity, ActivityPath } from "./types";
 
 const SERVER_URL = "http://localhost:8080";
 
 // TODO: placeholder until we have a user system setup
 const USER_ID = 1;
 
-type ActivityFormat = GeoJSON.FeatureCollection<GeoJSON.Point>;
-
 async function getActivityGeojson(
   activityId: string
-): Promise<ActivityFormat | null> {
+): Promise<ActivityPath | null> {
   const response = await fetch(
     `${SERVER_URL}/${USER_ID}/activities/${activityId}`
   );

@@ -1,4 +1,4 @@
-export type ActivityPath = GeoJSON.FeatureCollection<GeoJSON.Point>;
+export type ActivityPath = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
 export interface Activity {
   activity_id: string;

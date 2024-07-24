@@ -50,7 +50,7 @@ function ActivitiesMapPage() {
 
   useEffect(() => {
     (async () => {
-      const paths = await getAllActivityPaths(activities.slice(0, 20));
+      const paths = await getAllActivityPaths(activities);
       setActivityPaths(paths);
     })();
   }, [activities]);
