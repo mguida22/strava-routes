@@ -22,13 +22,13 @@ func activitiesHandler(w http.ResponseWriter, r *http.Request) {
 func getActivityJson() ([]byte, error) {
 	f, err := os.Open("data/activities.json")
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 	defer f.Close()
 
 	data, err := io.ReadAll(f)
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	type Activity struct {
@@ -141,14 +141,14 @@ func getActivityJson() ([]byte, error) {
 	var activities []Activity
 	err = json.Unmarshal(data, &activities)
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	var responseActivities []ResponseActivity
 	for _, activity := range activities {
 		activityDate, err := time.Parse("Jan 2, 2006, 3:04:05 PM", activity.ActivityDate)
 		if err != nil {
-			return []byte{}, err
+			return nil, err
 		}
 
 		activityDateMs := activityDate.UnixNano() / int64(time.Millisecond)
@@ -166,7 +166,7 @@ func getActivityJson() ([]byte, error) {
 
 	responseData, err := json.Marshal(responseActivities)
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
 	return responseData, nil
