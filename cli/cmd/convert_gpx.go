@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -122,20 +121,14 @@ func convertGPXToJSON(gpxData []byte) ([]byte, error) {
 	return jsonData, nil
 }
 
-func convertGpxFilesToJson(gpxFiles []fs.DirEntry, inputDir string, outputDir string) {
+func convertGpxFilesToJSON(gpxFiles []fs.DirEntry, inputDir string, outputDir string) {
 	for i, file := range gpxFiles {
 		percent := int(i * 100 / len(gpxFiles))
 		msg := fmt.Sprintf("%v/%v [%v%%] | %v", i, len(gpxFiles), percent, file.Name())
 		fmt.Println(msg)
 
-		gpxFile, err := os.Open(filepath.Join(inputDir, file.Name()))
-		if err != nil {
-			fmt.Println("Error opening GPX file:", err)
-			continue
-		}
-		defer gpxFile.Close()
-
-		gpxData, err := io.ReadAll(gpxFile)
+		filePath := filepath.Join(inputDir, file.Name())
+		gpxData, err := os.ReadFile(filePath)
 		if err != nil {
 			fmt.Println("Error reading GPX file:", err)
 			continue
@@ -196,7 +189,7 @@ func runGPXCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	convertGpxFilesToJson(gpxFiles, inputDir, outputDir)
+	convertGpxFilesToJSON(gpxFiles, inputDir, outputDir)
 
 	fmt.Println("Conversion complete.")
 }
