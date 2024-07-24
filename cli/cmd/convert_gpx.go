@@ -163,53 +163,53 @@ func convertGpxFilesToJson(gpxFiles []fs.DirEntry, inputDir string, outputDir st
 	}
 }
 
-var convertCmd = &cobra.Command{
-	Use:   "convert",
-	Short: "Converts all activity data from Strava",
-	Long:  `Converts all activity data from Strava data exports for use in strava-routes`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("convert called")
+func runGPXCmd(cmd *cobra.Command, args []string) {
+	inputDir, err := cmd.Flags().GetString("input")
+	if err != nil {
+		fmt.Println("Error reading input directory flag:", err)
+		return
+	}
 
-		inputDir, err := cmd.Flags().GetString("input")
-		if err != nil {
-			fmt.Println("Error reading input directory flag:", err)
-			return
+	files, err := os.ReadDir(inputDir)
+	if err != nil {
+		fmt.Println("Error reading files in input directory:", err)
+		return
+	}
+
+	var gpxFiles []fs.DirEntry
+	for _, file := range files {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".gpx" {
+			gpxFiles = append(gpxFiles, file)
 		}
+	}
 
-		files, err := os.ReadDir(inputDir)
-		if err != nil {
-			fmt.Println("Error reading files in input directory:", err)
-			return
-		}
+	outputDir, err := cmd.Flags().GetString("output")
+	if err != nil {
+		fmt.Println("Error reading output directory flag:", err)
+		return
+	}
 
-		var gpxFiles []fs.DirEntry
-		for _, file := range files {
-			if !file.IsDir() && filepath.Ext(file.Name()) == ".gpx" {
-				gpxFiles = append(gpxFiles, file)
-			}
-		}
+	// create --output directory if it doesn't exist
+	err = os.MkdirAll(outputDir, 0755)
+	if err != nil {
+		fmt.Println("Error creating output directory:", err)
+		return
+	}
 
-		outputDir, err := cmd.Flags().GetString("output")
-		if err != nil {
-			fmt.Println("Error reading output directory flag:", err)
-			return
-		}
+	convertGpxFilesToJson(gpxFiles, inputDir, outputDir)
 
-		// create --output directory if it doesn't exist
-		err = os.MkdirAll(outputDir, 0755)
-		if err != nil {
-			fmt.Println("Error creating output directory:", err)
-			return
-		}
+	fmt.Println("Conversion complete.")
+}
 
-		convertGpxFilesToJson(gpxFiles, inputDir, outputDir)
-
-		fmt.Println("Conversion complete.")
-	},
+var convertGPXCmd = &cobra.Command{
+	Use:   "convert-gpx-to-json",
+	Short: "Converts all gpx activity data from Strava",
+	Long:  `Converts all gpx activity data from Strava data exports for use in strava-routes`,
+	Run:   runGPXCmd,
 }
 
 func init() {
-	rootCmd.AddCommand(convertCmd)
+	rootCmd.AddCommand(convertGPXCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -219,6 +219,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	convertCmd.Flags().StringP("input", "i", "", "Directory from which to load Strava activity data")
-	convertCmd.Flags().StringP("output", "o", "", "Directory to save converted activty data")
+	convertGPXCmd.Flags().StringP("input", "i", "", "Directory from which to load Strava activity data")
+	convertGPXCmd.Flags().StringP("output", "o", "", "Directory to save converted activity data")
 }
