@@ -17,12 +17,17 @@ func getSimplifiedActivity(activityID string) ([]byte, error) {
 	}
 
 	// simplify the geojson data
-	lineString, err := util.PointsToSimplifiedLineStringJSON(data)
+	lineString, err := util.PointsToSimplifiedLineString(data)
 	if err != nil {
 		return nil, err
 	}
 
-	return lineString, nil
+	fc, err := util.FeatureToGeoJSON(*lineString)
+	if err != nil {
+		return nil, err
+	}
+
+	return fc, nil
 }
 
 func activityHandler(w http.ResponseWriter, r *http.Request) {
