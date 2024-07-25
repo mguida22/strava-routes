@@ -2,8 +2,7 @@ import { useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStravaAuthUser } from "./user-provider";
 
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
-const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET;
+const API_HOSTNAME = import.meta.env.VITE_API_HOSTNAME;
 
 function StravaRedirectPage() {
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ function StravaRedirectPage() {
       exchangeAttempted.current = true;
 
       try {
-        const url = `https://www.strava.com/api/v3/oauth/token?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&code=${code}&grant_type=authorization_code`;
+        const url = `${API_HOSTNAME}/strava/token-exchange?code=${code}`;
         const response = await fetch(url, {
           method: "POST",
         });

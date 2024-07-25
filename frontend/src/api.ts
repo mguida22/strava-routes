@@ -1,6 +1,6 @@
 import { Activity, ActivityPath } from "./types";
 
-const SERVER_URL = "http://localhost:8080";
+const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 
 // TODO: placeholder until we have a user system setup
 const USER_ID = 1;

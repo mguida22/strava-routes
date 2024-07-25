@@ -8,27 +8,39 @@ interface StravaAuthUser {
 }
 
 function getStravaAuthFromLocalStorage(): StravaAuthUser | null {
-  const accessToken = localStorage.getItem("stravaAccessToken");
-  const refreshToken = localStorage.getItem("stravaRefreshToken");
-  const expiresAt = localStorage.getItem("stravaExpiresAt");
-  const athleteRaw = localStorage.getItem("stravaAthlete");
-  const athlete = athleteRaw ? JSON.parse(athleteRaw) : null;
+  try {
+    const accessToken = localStorage.getItem("stravaAccessToken");
+    const refreshToken = localStorage.getItem("stravaRefreshToken");
+    const expiresAt = localStorage.getItem("stravaExpiresAt");
+    const athleteRaw = localStorage.getItem("stravaAthlete");
+    const athlete = athleteRaw ? JSON.parse(athleteRaw) : null;
 
-  if (
-    accessToken == null ||
-    refreshToken == null ||
-    expiresAt == null ||
-    athlete == null
-  ) {
+    if (
+      accessToken == null ||
+      refreshToken == null ||
+      expiresAt == null ||
+      athlete == null
+    ) {
+      throw new Error("Missing required fields in localStorage");
+    }
+
+    return {
+      accessToken,
+      refreshToken,
+      expiresAt,
+      athlete,
+    };
+  } catch (error) {
+    // There's always a chance localStorage data is malformed or missing.
+    // In this case, we'll just clear localStorage, return null and let the
+    // app re-authenticate.
+    localStorage.removeItem("stravaAccessToken");
+    localStorage.removeItem("stravaRefreshToken");
+    localStorage.removeItem("stravaExpiresAt");
+    localStorage.removeItem("stravaAthlete");
+
     return null;
   }
-
-  return {
-    accessToken,
-    refreshToken,
-    expiresAt,
-    athlete,
-  };
 }
 
 function setStravaAuthInLocalStorage({
