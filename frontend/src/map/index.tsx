@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import mapboxgl, { LngLatBoundsLike, GeoJSONSource } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { ActivityPath } from "./types";
+import { ActivityPath } from "../types";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";

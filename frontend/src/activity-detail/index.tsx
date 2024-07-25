@@ -1,8 +1,8 @@
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
-import ActivityMap from "./Map";
-import { getActivityDetail, getActivityGeojson } from "./api";
-import { Activity, ActivityPath } from "./types";
-import ActivityDetailOverlay from "./ActivityDetailOverlay";
+import ActivityMap from "../map/index";
+import { getActivityDetail, getActivityGeojson } from "../api";
+import { Activity, ActivityPath } from "../types";
+import ActivityDetailOverlay from "./overlay";
 
 interface ActivityDetailPageLoader {
   activity: Activity;

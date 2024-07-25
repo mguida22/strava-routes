@@ -2,17 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import App from "./App.tsx";
-import ErrorPage from "./ErrorPage.tsx";
+import App from "./app";
+import ErrorPage from "./error-page";
 import ActivityDetailPage, {
   loader as activityDetailPageLoader,
-} from "./ActivityDetailPage.tsx";
-import ActivityList, { loader as activityListLoader } from "./ActivityList.tsx";
+} from "./activity-detail/index";
+import ActivityListPage, {
+  loader as activityListPageLoader,
+} from "./activity-list/index";
 import ActivitiesMapPage, {
   loader as activitiesMapPageLoader,
-} from "./ActivitiesMapPage.tsx";
-import StravaRedirectPage from "./StravaRedirectPage.tsx";
-import { AuthUserProvider } from "./user-provider.tsx";
+} from "./activities-map/index";
+import StravaRedirectPage from "./strava/redirect-page";
+import { StravaAuthUserProvider } from "./strava/user-provider";
 
 const router = createBrowserRouter([
   {
@@ -22,8 +24,8 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <ActivityList />,
-        loader: activityListLoader,
+        element: <ActivityListPage />,
+        loader: activityListPageLoader,
       },
       {
         path: "/map",
@@ -45,8 +47,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <AuthUserProvider>
+    <StravaAuthUserProvider>
       <RouterProvider router={router} />
-    </AuthUserProvider>
+    </StravaAuthUserProvider>
   </React.StrictMode>
 );

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { getActivities } from "./api";
-import { Activity } from "./types";
 import { Link, useLoaderData } from "react-router-dom";
+
+import { getActivities } from "../api";
+import { Activity } from "../types";
 
 type SortKey = "activity_name" | "activity_date" | "activity_type";
 type SortType = "asc" | "desc";
@@ -43,7 +44,7 @@ export async function loader(): Promise<ActivityLoader> {
   return { activities: await getActivities() };
 }
 
-const ActivityList = () => {
+function ActivityListPage() {
   const { activities } = useLoaderData() as ActivityLoader;
   const [sortKey, setSortKey] = useState<SortKey>("activity_date");
   const [sortType, setSortType] = useState<SortType>("asc");
@@ -123,6 +124,6 @@ const ActivityList = () => {
       </table>
     </div>
   );
-};
+}
 
-export default ActivityList;
+export default ActivityListPage;

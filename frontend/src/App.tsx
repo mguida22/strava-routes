@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import StravaAuthButton from "./StravaAuthButton";
+import StravaAuthButton from "./strava/auth-button";
 
 function App() {
   return (

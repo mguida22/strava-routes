@@ -1,4 +1,4 @@
-import { Activity } from "./types";
+import { Activity } from "../types";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString();
