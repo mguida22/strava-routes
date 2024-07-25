@@ -11,6 +11,8 @@ import ActivityList, { loader as activityListLoader } from "./ActivityList.tsx";
 import ActivitiesMapPage, {
   loader as activitiesMapPageLoader,
 } from "./ActivitiesMapPage.tsx";
+import StravaRedirectPage from "./StravaRedirectPage.tsx";
+import { AuthUserProvider } from "./user-provider.tsx";
 
 const router = createBrowserRouter([
   {
@@ -33,12 +35,18 @@ const router = createBrowserRouter([
         element: <ActivityDetailPage />,
         loader: activityDetailPageLoader,
       },
+      {
+        path: "/strava-auth-redirect",
+        element: <StravaRedirectPage />,
+      },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthUserProvider>
+      <RouterProvider router={router} />
+    </AuthUserProvider>
   </React.StrictMode>
 );
