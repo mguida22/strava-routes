@@ -21,7 +21,6 @@ func exchangeCodeForAuthInfo(code string) ([]byte, error) {
 	}
 
 	return body, nil
-
 }
 
 func stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {

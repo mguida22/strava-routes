@@ -1,4 +1,4 @@
-import { Activity } from "../types";
+import { ExportActivity } from "../types";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString();
@@ -26,7 +26,7 @@ function formatDuration(duration: string) {
 }
 
 interface ActivityDetailOverlayProps {
-  activity: Activity;
+  activity: ExportActivity;
 }
 
 function ActivityDetailOverlay({ activity }: ActivityDetailOverlayProps) {

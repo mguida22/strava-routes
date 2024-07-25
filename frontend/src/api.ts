@@ -1,4 +1,4 @@
-import { Activity, ActivityPath } from "./types";
+import { ExportActivity, ActivityPath } from "./types";
 
 const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 
@@ -21,7 +21,7 @@ async function getActivityGeojson(
   return await response.json();
 }
 
-async function getActivityDetail(activityId: string): Promise<Activity> {
+async function getActivityDetail(activityId: string): Promise<ExportActivity> {
   const allActivities = await getActivities();
   const activity = allActivities.find((a) => a.activity_id === activityId);
 
@@ -32,7 +32,7 @@ async function getActivityDetail(activityId: string): Promise<Activity> {
   return activity;
 }
 
-async function getActivities(): Promise<Activity[]> {
+async function getActivities(): Promise<ExportActivity[]> {
   try {
     const response = await fetch(`${SERVER_URL}/${USER_ID}/activities`);
 

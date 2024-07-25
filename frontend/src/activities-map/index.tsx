@@ -1,12 +1,12 @@
 import { useLoaderData } from "react-router-dom";
 import { getActivities, getActivityGeojson } from "../api";
-import { Activity, ActivityPath } from "../types";
+import { ExportActivity, ActivityPath } from "../types";
 import ActivitiesMapOverlay from "./overlay";
 import ActivityMap from "../map";
 import { useEffect, useState } from "react";
 
 interface ActivitiesMapPageLoader {
-  activities: Activity[];
+  activities: ExportActivity[];
 }
 
 export async function loader(): Promise<ActivitiesMapPageLoader> {
@@ -14,7 +14,7 @@ export async function loader(): Promise<ActivitiesMapPageLoader> {
 }
 
 async function getAllActivityPaths(
-  activities: Activity[]
+  activities: ExportActivity[]
 ): Promise<ActivityPath[]> {
   const paths = await Promise.all(
     activities.map(async (activity) => {

@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 
 import { getActivities } from "../api";
-import { Activity } from "../types";
+import { ExportActivity } from "../types";
+import { useStravaApi } from "../strava/api";
 
 type SortKey = "activity_name" | "activity_date" | "activity_type";
 type SortType = "asc" | "desc";
 
 function filterAndSortActivities(
-  activities: Activity[],
+  activities: ExportActivity[],
   filterText: string,
   sortKey: SortKey,
   sortType: SortType
-): Activity[] {
+): ExportActivity[] {
   const filteredActivities = activities.filter(
     (a) =>
       a.activity_name.toLowerCase().includes(filterText.toLowerCase()) ||
@@ -37,7 +38,7 @@ function filterAndSortActivities(
 }
 
 interface ActivityLoader {
-  activities: Activity[];
+  activities: ExportActivity[];
 }
 
 export async function loader(): Promise<ActivityLoader> {

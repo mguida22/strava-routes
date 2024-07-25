@@ -1,7 +1,7 @@
-import { Activity } from "../types";
+import { ExportActivity } from "../types";
 
 interface ActivitiesMapOverlayProps {
-  activities: Activity[];
+  activities: ExportActivity[];
 }
 
 function ActivitiesMapOverlay({ activities }: ActivitiesMapOverlayProps) {

@@ -14,7 +14,7 @@ import ActivitiesMapPage, {
   loader as activitiesMapPageLoader,
 } from "./activities-map/index";
 import StravaRedirectPage from "./strava/redirect-page";
-import { StravaAuthUserProvider } from "./strava/user-provider";
+import { StravaAuthProvider } from "./strava/user-provider";
 
 const router = createBrowserRouter([
   {
@@ -47,8 +47,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <StravaAuthUserProvider>
+    <StravaAuthProvider>
       <RouterProvider router={router} />
-    </StravaAuthUserProvider>
+    </StravaAuthProvider>
   </React.StrictMode>
 );

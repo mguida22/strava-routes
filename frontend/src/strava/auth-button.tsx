@@ -1,4 +1,4 @@
-import { useStravaAuthUser } from "./user-provider";
+import { useStravaAuth } from "./user-provider";
 
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const HOSTNAME = import.meta.env.VITE_HOSTNAME;
@@ -7,7 +7,7 @@ const REDIRECT_URL = `${HOSTNAME}/strava-auth-redirect`;
 const SCOPE = "read,activity:read";
 
 function StravaAuthButton() {
-  const { stravaAuthUser } = useStravaAuthUser();
+  const { stravaAuthUser } = useStravaAuth();
 
   const handleAuthClick = () => {
     const authUrl = `http://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URL}&approval_prompt=force&scope=${SCOPE}`;

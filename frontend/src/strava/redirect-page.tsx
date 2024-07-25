@@ -1,12 +1,12 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useStravaAuthUser } from "./user-provider";
+import { useStravaAuth } from "./user-provider";
 
 const API_HOSTNAME = import.meta.env.VITE_API_HOSTNAME;
 
 function StravaRedirectPage() {
   const navigate = useNavigate();
-  const { setStravaAuthUser } = useStravaAuthUser();
+  const { setStravaAuth } = useStravaAuth();
   const exchangeAttempted = useRef(false);
 
   const exchangeToken = useCallback(
@@ -27,11 +27,10 @@ function StravaRedirectPage() {
 
         const data = await response.json();
 
-        setStravaAuthUser({
+        setStravaAuth({
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           expiresAt: data.expires_at,
-          athlete: data.athlete,
         });
       } catch (error) {
         console.error(error);
@@ -39,7 +38,7 @@ function StravaRedirectPage() {
         navigate("/", { replace: true });
       }
     },
-    [navigate, setStravaAuthUser]
+    [navigate, setStravaAuth]
   );
 
   useEffect(() => {
