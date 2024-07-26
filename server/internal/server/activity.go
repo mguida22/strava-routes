@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -41,5 +42,9 @@ func activityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(simplified)
+	_, err = w.Write(simplified)
+	if err != nil {
+		log.Printf("Error writing response: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

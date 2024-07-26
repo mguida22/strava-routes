@@ -2,6 +2,7 @@ package server
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -33,5 +34,9 @@ func stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(authInfo)
+	_, err = w.Write(authInfo)
+	if err != nil {
+		log.Printf("Error writing response: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
