@@ -61,7 +61,11 @@ type Gpx struct {
 
 func convertGPXToJSON(gpxData []byte) ([]byte, error) {
 	var gpx Gpx
-	xml.Unmarshal(gpxData, &gpx)
+	err := xml.Unmarshal(gpxData, &gpx)
+	if err != nil {
+		fmt.Println("Error unmarshalling GPX data:", err)
+		return nil, err
+	}
 
 	var features []Feature
 	for _, trk := range gpx.Trks {
