@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -21,7 +22,22 @@ func refreshAuthCode(refreshToken string) ([]byte, error) {
 		return nil, err
 	}
 
-	return body, nil
+	var u StravaAuthApiUser
+	if err := json.Unmarshal(body, &u); err != nil {
+		return nil, err
+	}
+
+	athlete, err := upsertAthleteFromAuthUser(u)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedJSON, err := json.Marshal(athlete)
+	if err != nil {
+		return nil, err
+	}
+
+	return encodedJSON, nil
 }
 
 func stravaTokenRefreshHandler(w http.ResponseWriter, r *http.Request) {

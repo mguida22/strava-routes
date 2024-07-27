@@ -13,8 +13,11 @@ func HttpServer(addr string) *http.Server {
 	r.Use(loggingMiddleware)
 
 	r.HandleFunc("/health", healthHandler).Methods("GET")
+
 	r.HandleFunc("/strava/token-exchange", stravaTokenExchangeHandler).Methods("POST")
 	r.HandleFunc("/strava/token-refresh", stravaTokenRefreshHandler).Methods("POST")
+	r.HandleFunc("/strava/sync-activities", stravaSyncActivitiesHandler).Methods("GET")
+
 	r.HandleFunc("/{userId}/activities", activitiesHandler).Methods("GET")
 	r.HandleFunc("/{userId}/activities/{activityId}", activityHandler).Methods("GET")
 

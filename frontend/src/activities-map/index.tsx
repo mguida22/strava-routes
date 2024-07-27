@@ -40,10 +40,6 @@ async function getAllActivityPaths(
   return filteredPaths;
 }
 
-// TODO: this falls apart with so many activities.
-// We need to cut down the number of points for each activity. It's probably
-// worth looking into loading this data in a format other than GeoJSON as well.
-// https://docs.mapbox.com/help/troubleshooting/working-with-large-geojson-data/
 function ActivitiesMapPage() {
   const { activities } = useLoaderData() as ActivitiesMapPageLoader;
   const [activityPaths, setActivityPaths] = useState<ActivityPath[]>([]);
