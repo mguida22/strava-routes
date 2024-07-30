@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"log"
@@ -31,7 +31,7 @@ func getSimplifiedActivity(activityID string) ([]byte, error) {
 	return fc, nil
 }
 
-func activityHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) activityHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	activityID := vars["activityId"]
 

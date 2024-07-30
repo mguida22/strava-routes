@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func refreshAuthCode(refreshToken string) ([]byte, error) {
+func (app *application) refreshAuthCode(refreshToken string) ([]byte, error) {
 	url := "https://www.strava.com/oauth/token?client_id=" + os.Getenv("STRAVA_CLIENT_ID") + "&client_secret=" + os.Getenv("STRAVA_CLIENT_SECRET") + "&refresh_token=" + refreshToken + "&grant_type=refresh_token"
 
 	resp, err := http.Post(url, "application/json", nil)
@@ -27,7 +27,7 @@ func refreshAuthCode(refreshToken string) ([]byte, error) {
 		return nil, err
 	}
 
-	athlete, err := upsertAthleteFromAuthUser(u)
+	athlete, err := app.upsertAthleteFromAuthUser(u)
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +40,10 @@ func refreshAuthCode(refreshToken string) ([]byte, error) {
 	return encodedJSON, nil
 }
 
-func stravaTokenRefreshHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) stravaTokenRefreshHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken := r.FormValue("refresh_token")
 
-	authInfo, err := refreshAuthCode(refreshToken)
+	authInfo, err := app.refreshAuthCode(refreshToken)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

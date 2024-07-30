@@ -6,11 +6,35 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func CreateAthlete(athlete *Athlete) (string, error) {
-	collection := db.Collection("athletes")
+type Athlete struct {
+	ID                   primitive.ObjectID `bson:"_id,omitempty"`
+	CreatedAt            time.Time          `bson:"created_at,omitempty"`
+	UpdatedAt            time.Time          `bson:"updated_at,omitempty"`
+	AccessToken          string             `bson:"access_token"`
+	AccessTokenExpiresAt int                `bson:"access_token_expires_at"`
+	RefreshToken         string             `bson:"refresh_token"`
+
+	// From Strava API
+	StravaID    int                  `bson:"strava_id,omitempty"`
+	Username    string               `bson:"username,omitempty"`
+	Firstname   string               `bson:"firstname,omitempty"`
+	Lastname    string               `bson:"lastname,omitempty"`
+	City        string               `bson:"city,omitempty"`
+	State       string               `bson:"state,omitempty"`
+	Country     string               `bson:"country,omitempty"`
+	ActivityIds []primitive.ObjectID `bson:"activity_ids,omitempty"`
+}
+
+type AthleteModel struct {
+	db *mongo.Database
+}
+
+func (m AthleteModel) Create(athlete *Athlete) (string, error) {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 
@@ -25,8 +49,8 @@ func CreateAthlete(athlete *Athlete) (string, error) {
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func GetAthlete(id string) (*Athlete, error) {
-	collection := db.Collection("athletes")
+func (m AthleteModel) GetOne(id string) (*Athlete, error) {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 
@@ -39,8 +63,8 @@ func GetAthlete(id string) (*Athlete, error) {
 	return &athlete, nil
 }
 
-func GetAthletes() ([]*Athlete, error) {
-	collection := db.Collection("athletes")
+func (m AthleteModel) GetMany() ([]*Athlete, error) {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 
@@ -62,19 +86,19 @@ func GetAthletes() ([]*Athlete, error) {
 	return athletes, nil
 }
 
-func UpdateAthlete(id string, athlete *Athlete) error {
-	collection := db.Collection("athletes")
+func (m AthleteModel) UpdateByID(athlete *Athlete) error {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 
 	athlete.UpdatedAt = time.Now()
 
-	_, err := collection.ReplaceOne(ctx, bson.M{"_id": id}, athlete)
+	_, err := collection.ReplaceOne(ctx, bson.M{"_id": athlete.ID}, athlete)
 	return err
 }
 
-func UpsertAthleteByStravaID(athlete *Athlete) (*Athlete, error) {
-	collection := db.Collection("athletes")
+func (m AthleteModel) UpsertByStravaID(athlete *Athlete) (*Athlete, error) {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 
@@ -99,8 +123,8 @@ func UpsertAthleteByStravaID(athlete *Athlete) (*Athlete, error) {
 	return &updatedAthlete, nil
 }
 
-func DeleteAthlete(id string) error {
-	collection := db.Collection("athletes")
+func (m AthleteModel) Delete(id string) error {
+	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
 	defer cancel()
 

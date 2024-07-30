@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"encoding/json"
@@ -37,7 +37,7 @@ type StravaAuthApiUser struct {
 	TokenType    string `json:"token_type"`
 }
 
-func upsertAthleteFromAuthUser(u StravaAuthApiUser) (*database.Athlete, error) {
+func (app *application) upsertAthleteFromAuthUser(u StravaAuthApiUser) (*database.Athlete, error) {
 	athlete := &database.Athlete{
 		AccessToken:          u.AccessToken,
 		AccessTokenExpiresAt: u.ExpiresAt,
@@ -51,7 +51,7 @@ func upsertAthleteFromAuthUser(u StravaAuthApiUser) (*database.Athlete, error) {
 		Country:              u.Athlete.Country.(string),
 	}
 
-	athlete, err := database.UpsertAthleteByStravaID(athlete)
+	athlete, err := app.models.Athletes.UpsertByStravaID(athlete)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func upsertAthleteFromAuthUser(u StravaAuthApiUser) (*database.Athlete, error) {
 	return athlete, nil
 }
 
-func exchangeCodeForAuthInfo(code string) ([]byte, error) {
+func (app *application) exchangeCodeForAuthInfo(code string) ([]byte, error) {
 	url := "https://www.strava.com/oauth/token?client_id=" + os.Getenv("STRAVA_CLIENT_ID") + "&client_secret=" + os.Getenv("STRAVA_CLIENT_SECRET") + "&code=" + code + "&grant_type=authorization_code"
 
 	resp, err := http.Post(url, "application/json", nil)
@@ -78,7 +78,7 @@ func exchangeCodeForAuthInfo(code string) ([]byte, error) {
 		return nil, err
 	}
 
-	athlete, err := upsertAthleteFromAuthUser(u)
+	athlete, err := app.upsertAthleteFromAuthUser(u)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +91,10 @@ func exchangeCodeForAuthInfo(code string) ([]byte, error) {
 	return encodedJSON, nil
 }
 
-func stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
-	authInfo, err := exchangeCodeForAuthInfo(code)
+	authInfo, err := app.exchangeCodeForAuthInfo(code)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

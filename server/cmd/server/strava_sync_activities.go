@@ -1,11 +1,11 @@
-package server
+package main
 
 import (
 	"log"
 	"net/http"
 )
 
-func stravaSyncActivitiesHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) stravaSyncActivitiesHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: implement fetching of strava data and storing in our db....
 
 	w.Header().Set("Content-Type", "application/json")

@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func activitiesHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) activitiesHandler(w http.ResponseWriter, r *http.Request) {
 	activity, err := getActivityJson()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

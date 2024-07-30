@@ -13,9 +13,7 @@ import (
 var OperationTimeout = 5 * time.Second
 var databaseTimeout = 10 * time.Second
 
-var db *mongo.Database
-
-func InitDB() error {
+func New() (*mongo.Client, error) {
 	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
 		log.Println("MONGODB_URI not found in .env")
@@ -34,7 +32,5 @@ func InitDB() error {
 		}
 	}()
 
-	db = client.Database("strava-routes")
-
-	return nil
+	return client, nil
 }
