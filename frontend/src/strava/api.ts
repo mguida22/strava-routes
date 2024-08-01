@@ -92,12 +92,14 @@ class StravaApiWrapper {
       const data = await response.json();
 
       setStravaAuthInLocalStorage({
+        userId: data.id,
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
         expiresAt: data.expires_at,
       });
 
       return {
+        userId: data.id,
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
         expiresAt: data.expires_at,

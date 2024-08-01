@@ -7,7 +7,7 @@ const REDIRECT_URL = `${HOSTNAME}/strava-auth-redirect`;
 const SCOPE = "read,activity:read";
 
 function StravaAuthButton() {
-  const { stravaAuthUser } = useStravaAuth();
+  const { stravaAuth } = useStravaAuth();
 
   const handleAuthClick = () => {
     const authUrl = `http://www.strava.com/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URL}&approval_prompt=force&scope=${SCOPE}`;
@@ -20,9 +20,9 @@ function StravaAuthButton() {
       type="button"
       onClick={handleAuthClick}
       className="rounded p-2 bg-orange-500 text-white"
-      disabled={stravaAuthUser != null}
+      disabled={stravaAuth != null}
     >
-      {stravaAuthUser == null ? "Connect Strava" : "Strava Connected"}
+      {stravaAuth == null ? "Connect Strava" : "Strava Connected"}
     </button>
   );
 }

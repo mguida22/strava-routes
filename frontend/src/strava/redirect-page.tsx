@@ -28,6 +28,7 @@ function StravaRedirectPage() {
         const data = await response.json();
 
         setStravaAuth({
+          userId: data.id,
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           expiresAt: data.expires_at,
