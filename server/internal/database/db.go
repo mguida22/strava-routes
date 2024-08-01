@@ -19,7 +19,7 @@ func New() (*mongo.Client, error) {
 		log.Println("MONGODB_URI not found in .env")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), databaseTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), DatabaseTimeout)
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))

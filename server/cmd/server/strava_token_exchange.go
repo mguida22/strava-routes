@@ -58,7 +58,7 @@ func (app *application) upsertAthleteFromAuthUser(u StravaAuthApiUser) (*databas
 	return athlete, nil
 }
 
-func (app *application) exchangeCodeForAuthInfo(code string) ([]byte, error) {
+func (app *application) exchangeCodeForAuthInfo(code string) (*database.Athlete, error) {
 	url := "https://www.strava.com/oauth/token?client_id=" + os.Getenv("STRAVA_CLIENT_ID") + "&client_secret=" + os.Getenv("STRAVA_CLIENT_SECRET") + "&code=" + code + "&grant_type=authorization_code"
 
 	resp, err := http.Post(url, "application/json", nil)
@@ -82,18 +82,49 @@ func (app *application) exchangeCodeForAuthInfo(code string) ([]byte, error) {
 		return nil, err
 	}
 
-	encodedJSON, err := json.Marshal(athlete)
+	return athlete, nil
+}
+
+type AthleteResponse struct {
+	ID           string `json:"id"`
+	StravaID     int    `json:"strava_id"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    int    `json:"expires_at"`
+	Firstname    string `json:"firstname"`
+	Lastname     string `json:"lastname"`
+}
+
+func getAthleteResponse(athlete *database.Athlete) ([]byte, error) {
+	ar := AthleteResponse{
+		ID:           athlete.ID.Hex(),
+		StravaID:     athlete.StravaID,
+		AccessToken:  athlete.AccessToken,
+		RefreshToken: athlete.RefreshToken,
+		ExpiresAt:    athlete.AccessTokenExpiresAt,
+		Firstname:    athlete.Firstname,
+		Lastname:     athlete.Lastname,
+	}
+
+	jsonData, err := json.Marshal(ar)
 	if err != nil {
 		return nil, err
 	}
 
-	return encodedJSON, nil
+	return jsonData, nil
 }
 
 func (app *application) stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
-	authInfo, err := app.exchangeCodeForAuthInfo(code)
+	athlete, err := app.exchangeCodeForAuthInfo(code)
+	if err != nil {
+		app.logger.PrintError(err, nil)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := getAthleteResponse(athlete)
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -101,7 +132,7 @@ func (app *application) stravaTokenExchangeHandler(w http.ResponseWriter, r *htt
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(authInfo)
+	_, err = w.Write(jsonData)
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
