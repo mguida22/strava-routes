@@ -11,7 +11,7 @@ import (
 )
 
 var OperationTimeout = 5 * time.Second
-var databaseTimeout = 10 * time.Second
+var DatabaseTimeout = 10 * time.Second
 
 func New() (*mongo.Client, error) {
 	uri := os.Getenv("MONGODB_URI")
@@ -26,11 +26,6 @@ func New() (*mongo.Client, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
 	return client, nil
 }

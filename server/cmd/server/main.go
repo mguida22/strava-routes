@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -28,10 +29,18 @@ func main() {
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
+	ctx, cancel := context.WithTimeout(context.Background(), database.DatabaseTimeout)
+	defer cancel()
+
 	client, err := database.New()
 	if err != nil {
 		logger.PrintFatal(err, nil)
 	}
+	defer func() {
+		if err := client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
 
 	db := client.Database("strava-routes")
 	logger.PrintInfo(("Connected to database"), nil)
