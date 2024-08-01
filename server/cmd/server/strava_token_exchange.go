@@ -12,23 +12,23 @@ import (
 type StravaAuthApiUser struct {
 	AccessToken string `json:"access_token"`
 	Athlete     struct {
-		Country       interface{} `json:"country"`
-		CreatedAt     string      `json:"created_at"`
-		Firstname     string      `json:"firstname"`
-		Follower      interface{} `json:"follower"`
-		Friend        interface{} `json:"friend"`
-		ID            int         `json:"id"`
-		Lastname      string      `json:"lastname"`
-		Premium       bool        `json:"premium"`
-		Profile       string      `json:"profile"`
-		ProfileMedium string      `json:"profile_medium"`
-		ResourceState int         `json:"resource_state"`
-		Sex           string      `json:"sex"`
-		State         interface{} `json:"state"`
-		Summit        bool        `json:"summit"`
-		UpdatedAt     string      `json:"updated_at"`
-		Username      string      `json:"username"`
-		Weight        float64     `json:"weight"`
+		Country       string  `json:"country"`
+		CreatedAt     string  `json:"created_at"`
+		Firstname     string  `json:"firstname"`
+		Follower      string  `json:"follower"`
+		Friend        string  `json:"friend"`
+		ID            int     `json:"id"`
+		Lastname      string  `json:"lastname"`
+		Premium       bool    `json:"premium"`
+		Profile       string  `json:"profile"`
+		ProfileMedium string  `json:"profile_medium"`
+		ResourceState int     `json:"resource_state"`
+		Sex           string  `json:"sex"`
+		State         string  `json:"state"`
+		Summit        bool    `json:"summit"`
+		UpdatedAt     string  `json:"updated_at"`
+		Username      string  `json:"username"`
+		Weight        float64 `json:"weight"`
 	}
 	ExpiresAt    int    `json:"expires_at"`
 	ExpiresIn    int    `json:"expires_in"`
@@ -45,9 +45,9 @@ func (app *application) upsertAthleteFromAuthUser(u StravaAuthApiUser) (*databas
 		Username:             u.Athlete.Username,
 		Firstname:            u.Athlete.Firstname,
 		Lastname:             u.Athlete.Lastname,
-		City:                 u.Athlete.Country.(string),
-		State:                u.Athlete.State.(string),
-		Country:              u.Athlete.Country.(string),
+		City:                 u.Athlete.Country,
+		State:                u.Athlete.State,
+		Country:              u.Athlete.Country,
 	}
 
 	athlete, err := app.models.Athletes.UpsertByStravaID(athlete)
