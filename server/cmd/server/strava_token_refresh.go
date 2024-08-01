@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 )
@@ -45,6 +44,7 @@ func (app *application) stravaTokenRefreshHandler(w http.ResponseWriter, r *http
 
 	authInfo, err := app.refreshAuthCode(refreshToken)
 	if err != nil {
+		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -52,7 +52,7 @@ func (app *application) stravaTokenRefreshHandler(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(authInfo)
 	if err != nil {
-		log.Printf("Error writing response: %v", err)
+		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

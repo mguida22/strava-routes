@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -12,6 +11,7 @@ import (
 func (app *application) activitiesHandler(w http.ResponseWriter, r *http.Request) {
 	activity, err := getActivityJson()
 	if err != nil {
+		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -19,12 +19,14 @@ func (app *application) activitiesHandler(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write([]byte(activity))
 	if err != nil {
-		log.Printf("Error writing response: %v", err)
+		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func getActivityJson() ([]byte, error) {
+	// TODO: replace with fetching of activities from our db
+
 	f, err := os.Open("data/activities.json")
 	if err != nil {
 		return nil, err

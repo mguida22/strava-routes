@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 )
 
@@ -11,7 +10,7 @@ func (app *application) stravaSyncActivitiesHandler(w http.ResponseWriter, r *ht
 	w.Header().Set("Content-Type", "application/json")
 	_, err := w.Write([]byte("Syncing activities..."))
 	if err != nil {
-		log.Printf("Error writing response: %v", err)
+		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

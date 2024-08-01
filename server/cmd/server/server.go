@@ -35,7 +35,6 @@ func (app *application) serve() error {
 		defer cancel()
 
 		shutdownError <- srv.Shutdown(ctx)
-
 	}()
 
 	app.logger.PrintInfo("starting server", map[string]string{
