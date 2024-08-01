@@ -85,35 +85,6 @@ func (app *application) exchangeCodeForAuthInfo(code string) (*database.Athlete,
 	return athlete, nil
 }
 
-type AthleteResponse struct {
-	ID           string `json:"id"`
-	StravaID     int    `json:"strava_id"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresAt    int    `json:"expires_at"`
-	Firstname    string `json:"firstname"`
-	Lastname     string `json:"lastname"`
-}
-
-func getAthleteResponse(athlete *database.Athlete) ([]byte, error) {
-	ar := AthleteResponse{
-		ID:           athlete.ID.Hex(),
-		StravaID:     athlete.StravaID,
-		AccessToken:  athlete.AccessToken,
-		RefreshToken: athlete.RefreshToken,
-		ExpiresAt:    athlete.AccessTokenExpiresAt,
-		Firstname:    athlete.Firstname,
-		Lastname:     athlete.Lastname,
-	}
-
-	jsonData, err := json.Marshal(ar)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonData, nil
-}
-
 func (app *application) stravaTokenExchangeHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 
@@ -124,7 +95,7 @@ func (app *application) stravaTokenExchangeHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
-	jsonData, err := getAthleteResponse(athlete)
+	jsonData, err := app.models.Athletes.GetAthleteResponseJSON(athlete)
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
