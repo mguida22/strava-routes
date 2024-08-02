@@ -1,8 +1,11 @@
-import { Outlet } from "react-router-dom";
-import StravaAuthButton from "./strava/auth-button";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import "../index.css";
 
-function App() {
-  return (
+import StravaAuthButton from "../strava/auth-button";
+
+export const Route = createRootRoute({
+  component: () => (
     <div className="h-screen w-screen">
       <header className="fixed top-0 start-0 z-50 w-full border-b p-4 flex justify-between align-center border-gray-200 bg-gray-50">
         <h1 className="text-3xl font-bold ">Activity Tracker</h1>
@@ -11,8 +14,7 @@ function App() {
       <main className="flex items-center mx-auto pt-16">
         <Outlet />
       </main>
+      <TanStackRouterDevtools />
     </div>
-  );
-}
-
-export default App;
+  ),
+});

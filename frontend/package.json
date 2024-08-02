@@ -11,15 +11,17 @@
     "data": "npx tsx data/process.ts"
   },
   "dependencies": {
+    "@tanstack/react-router": "^1.46.0",
     "dotenv": "^16.4.5",
     "jsdom": "^24.1.0",
     "mapbox-gl": "^3.4.0",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.25.1"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tanstack/router-devtools": "^1.46.0",
+    "@tanstack/router-plugin": "^1.45.13",
     "@types/mapbox-gl": "^3.1.0",
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",

@@ -1,54 +1,25 @@
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./index.css";
-import App from "./app";
-import ErrorPage from "./error-page";
-import ActivityDetailPage, {
-  loader as activityDetailPageLoader,
-} from "./activity-detail/index";
-import ActivityListPage, {
-  loader as activityListPageLoader,
-} from "./activity-list/index";
-import ActivitiesMapPage, {
-  loader as activitiesMapPageLoader,
-} from "./activities-map/index";
-import StravaRedirectPage from "./strava/redirect-page";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
 import { StravaAuthProvider } from "./strava/user-provider";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: "/",
-        element: <ActivityListPage />,
-        loader: activityListPageLoader,
-      },
-      {
-        path: "/map",
-        element: <ActivitiesMapPage />,
-        loader: activitiesMapPageLoader,
-      },
-      {
-        path: "/activity/:id",
-        element: <ActivityDetailPage />,
-        loader: activityDetailPageLoader,
-      },
-      {
-        path: "/strava-auth-redirect",
-        element: <StravaRedirectPage />,
-      },
-    ],
-  },
-]);
+const router = createRouter({ routeTree });
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <StravaAuthProvider>
-      <RouterProvider router={router} />
-    </StravaAuthProvider>
-  </React.StrictMode>
-);
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const rootElement = document.getElementById("root")!;
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <StravaAuthProvider>
+        <RouterProvider router={router} />
+      </StravaAuthProvider>
+    </StrictMode>
+  );
+}

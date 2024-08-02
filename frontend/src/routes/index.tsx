@@ -1,52 +1,15 @@
-import { useEffect, useState } from "react";
-import { Link, useLoaderData } from "react-router-dom";
-
-import { getActivities } from "../api";
+import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { fetchActivities } from "../api";
 import { ExportActivity } from "../types";
-import { useStravaApi } from "../strava/api";
+import { useEffect, useState } from "react";
 
-type SortKey = "activity_name" | "activity_date" | "activity_type";
-type SortType = "asc" | "desc";
+export const Route = createFileRoute("/")({
+  component: Index,
+  loader: async () => await fetchActivities(),
+});
 
-function filterAndSortActivities(
-  activities: ExportActivity[],
-  filterText: string,
-  sortKey: SortKey,
-  sortType: SortType
-): ExportActivity[] {
-  const filteredActivities = activities.filter(
-    (a) =>
-      a.activity_name.toLowerCase().includes(filterText.toLowerCase()) ||
-      a.activity_type.toLowerCase().includes(filterText.toLowerCase())
-  );
-
-  if (sortKey != null && sortType != null) {
-    filteredActivities.sort((a, b) => {
-      if (sortKey === "activity_date") {
-        return sortType === "asc"
-          ? a.activity_date_ms - b.activity_date_ms
-          : b.activity_date_ms - a.activity_date_ms;
-      }
-
-      return sortType === "asc"
-        ? a[sortKey].localeCompare(b[sortKey])
-        : b[sortKey].localeCompare(a[sortKey]);
-    });
-  }
-
-  return filteredActivities;
-}
-
-interface ActivityLoader {
-  activities: ExportActivity[];
-}
-
-export async function loader(): Promise<ActivityLoader> {
-  return { activities: await getActivities() };
-}
-
-function ActivityListPage() {
-  const { activities } = useLoaderData() as ActivityLoader;
+function Index() {
+  const activities = useLoaderData({ from: "/" });
   const [sortKey, setSortKey] = useState<SortKey>("activity_date");
   const [sortType, setSortType] = useState<SortType>("asc");
   const [filterText, setFilterText] = useState("");
@@ -127,4 +90,34 @@ function ActivityListPage() {
   );
 }
 
-export default ActivityListPage;
+type SortKey = "activity_name" | "activity_date" | "activity_type";
+type SortType = "asc" | "desc";
+
+function filterAndSortActivities(
+  activities: ExportActivity[],
+  filterText: string,
+  sortKey: SortKey,
+  sortType: SortType
+): ExportActivity[] {
+  const filteredActivities = activities.filter(
+    (a) =>
+      a.activity_name.toLowerCase().includes(filterText.toLowerCase()) ||
+      a.activity_type.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  if (sortKey != null && sortType != null) {
+    filteredActivities.sort((a, b) => {
+      if (sortKey === "activity_date") {
+        return sortType === "asc"
+          ? a.activity_date_ms - b.activity_date_ms
+          : b.activity_date_ms - a.activity_date_ms;
+      }
+
+      return sortType === "asc"
+        ? a[sortKey].localeCompare(b[sortKey])
+        : b[sortKey].localeCompare(a[sortKey]);
+    });
+  }
+
+  return filteredActivities;
+}

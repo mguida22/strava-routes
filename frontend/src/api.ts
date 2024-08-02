@@ -5,24 +5,26 @@ const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 // TODO: placeholder until we have a user system setup
 const USER_ID = 1;
 
-async function getActivityGeojson(
-  activityId: string
+async function fetchActivityGeojson(
+  activityId: string,
 ): Promise<ActivityPath | null> {
   const response = await fetch(
-    `${SERVER_URL}/${USER_ID}/activities/${activityId}`
+    `${SERVER_URL}/${USER_ID}/activities/${activityId}`,
   );
 
   if (!response.ok) {
     throw new Error(
-      `Couldn't fetch geojson for activity_id:${activityId}. Received status ${response.status}, ${response.statusText}`
+      `Couldn't fetch geojson for activity_id:${activityId}. Received status ${response.status}, ${response.statusText}`,
     );
   }
 
   return await response.json();
 }
 
-async function getActivityDetail(activityId: string): Promise<ExportActivity> {
-  const allActivities = await getActivities();
+async function fetchActivityDetail(
+  activityId: string,
+): Promise<ExportActivity> {
+  const allActivities = await fetchActivities();
   const activity = allActivities.find((a) => a.activity_id === activityId);
 
   if (activity == null) {
@@ -32,7 +34,7 @@ async function getActivityDetail(activityId: string): Promise<ExportActivity> {
   return activity;
 }
 
-async function getActivities(): Promise<ExportActivity[]> {
+async function fetchActivities(): Promise<ExportActivity[]> {
   try {
     const response = await fetch(`${SERVER_URL}/${USER_ID}/activities`);
 
@@ -48,4 +50,4 @@ async function getActivities(): Promise<ExportActivity[]> {
   }
 }
 
-export { getActivities, getActivityDetail, getActivityGeojson };
+export { fetchActivities, fetchActivityDetail, fetchActivityGeojson };

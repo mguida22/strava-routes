@@ -1,4 +1,4 @@
-import { ExportActivity } from "../types";
+import { ExportActivity } from "./types";
 
 interface ActivitiesMapOverlayProps {
   activities: ExportActivity[];

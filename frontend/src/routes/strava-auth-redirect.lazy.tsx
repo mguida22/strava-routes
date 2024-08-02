@@ -1,10 +1,14 @@
+import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { useStravaAuth } from "./user-provider";
+import { useStravaAuth } from "../strava/user-provider";
+
+export const Route = createLazyFileRoute("/strava-auth-redirect")({
+  component: StravaRedirect,
+});
 
 const API_HOSTNAME = import.meta.env.VITE_API_HOSTNAME;
 
-function StravaRedirectPage() {
+function StravaRedirect() {
   const navigate = useNavigate();
   const { setStravaAuth } = useStravaAuth();
   const exchangeAttempted = useRef(false);
@@ -36,7 +40,7 @@ function StravaRedirectPage() {
       } catch (error) {
         console.error(error);
       } finally {
-        navigate("/", { replace: true });
+        navigate({ to: "/", replace: true });
       }
     },
     [navigate, setStravaAuth]
@@ -46,7 +50,7 @@ function StravaRedirectPage() {
     const code = new URLSearchParams(window.location.search).get("code");
     if (!code) {
       console.log("no code provided. redirecting to /");
-      navigate("/", { replace: true });
+      navigate({ to: "/", replace: true });
       return;
     }
 
@@ -55,5 +59,3 @@ function StravaRedirectPage() {
 
   return <div>Redirecting...</div>;
 }
-
-export default StravaRedirectPage;
