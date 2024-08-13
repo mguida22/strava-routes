@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import mapboxgl, { LngLatBoundsLike, GeoJSONSource } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { ActivityPath } from "./types";
+import { ActivityRoute } from "../types";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";
@@ -9,17 +9,17 @@ mapboxgl.accessToken =
 const DEFAULT_PADDING = 0.02;
 
 function getBoundingBoxFromFeatureCollections(
-  paths: ActivityPath[]
+  routes: ActivityRoute[]
 ): LngLatBoundsLike | undefined {
-  if (paths.length === 0) return undefined;
+  if (routes.length === 0) return undefined;
 
   let minLat = Infinity;
   let maxLat = -Infinity;
   let minLon = Infinity;
   let maxLon = -Infinity;
 
-  const path = paths[0];
-  for (let feature of path.features) {
+  const route = routes[0];
+  for (let feature of route.features) {
     const coords = feature.geometry.coordinates;
 
     for (let coord of coords) {
@@ -36,11 +36,11 @@ function getBoundingBoxFromFeatureCollections(
   ];
 }
 
-function geojsonFromActivityPaths(
-  paths: ActivityPath[]
+function geojsonFromActivityRoutes(
+  routes: ActivityRoute[]
 ): GeoJSON.FeatureCollection {
   const features =
-    paths.length > 0 ? paths.flatMap((path) => path.features) : [];
+    routes.length > 0 ? routes.flatMap((route) => route.features) : [];
   return {
     type: "FeatureCollection",
     features,
@@ -48,10 +48,10 @@ function geojsonFromActivityPaths(
 }
 
 interface ActivityMapProps {
-  activityPaths: ActivityPath[];
+  activityRoutes: ActivityRoute[];
 }
 
-export default function ActivityMap({ activityPaths }: ActivityMapProps) {
+export default function ActivityMap({ activityRoutes }: ActivityMapProps) {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
@@ -61,7 +61,7 @@ export default function ActivityMap({ activityPaths }: ActivityMapProps) {
     map.current = new mapboxgl.Map({
       container: mapContainer.current ?? "",
       style: "mapbox://styles/mapbox/outdoors-v12",
-      bounds: getBoundingBoxFromFeatureCollections(activityPaths),
+      bounds: getBoundingBoxFromFeatureCollections(activityRoutes),
       zoom: 11,
       attributionControl: false,
     });
@@ -71,7 +71,7 @@ export default function ActivityMap({ activityPaths }: ActivityMapProps) {
 
       map.current.addSource("route-source", {
         type: "geojson",
-        data: geojsonFromActivityPaths(activityPaths),
+        data: geojsonFromActivityRoutes(activityRoutes),
       });
 
       map.current.addLayer({
@@ -84,7 +84,7 @@ export default function ActivityMap({ activityPaths }: ActivityMapProps) {
         },
       });
 
-      const bounds = getBoundingBoxFromFeatureCollections(activityPaths);
+      const bounds = getBoundingBoxFromFeatureCollections(activityRoutes);
       if (bounds) {
         map.current.fitBounds(bounds, {
           padding: 20,
@@ -101,15 +101,15 @@ export default function ActivityMap({ activityPaths }: ActivityMapProps) {
     const source = map.current.getSource("route-source") as GeoJSONSource;
     if (source == null) return;
 
-    source.setData(geojsonFromActivityPaths(activityPaths));
+    source.setData(geojsonFromActivityRoutes(activityRoutes));
 
-    const bounds = getBoundingBoxFromFeatureCollections(activityPaths);
+    const bounds = getBoundingBoxFromFeatureCollections(activityRoutes);
     if (bounds != null) {
       map.current.fitBounds(bounds, {
         padding: 20,
       });
     }
-  }, [activityPaths]);
+  }, [activityRoutes]);
 
   return <div ref={mapContainer} className="h-full w-full" />;
 }

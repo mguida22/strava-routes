@@ -7,19 +7,19 @@ export const Route = createFileRoute("/activity/$id")({
   component: ActivityDetail,
   loader: async ({ params: { id } }) => {
     const activity = await fetchActivityDetail(id);
-    const activityPath = await fetchActivityGeojson(id);
+    const activityRoute = await fetchActivityGeojson(id);
 
-    return { activity, activityPath };
+    return { activity, activityRoute };
   },
 });
 
 function ActivityDetail() {
-  const { activity, activityPath } = useLoaderData({ from: "/activity/$id" });
+  const { activity, activityRoute } = useLoaderData({ from: "/activity/$id" });
   return (
     <>
       <div className="w-full h-[calc(100vh-64px)] relative">
-        {activityPath != null ? (
-          <ActivityMap activityPaths={[activityPath]} />
+        {activityRoute != null ? (
+          <ActivityMap activityRoutes={[activityRoute]} />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <h2 className="text-lg">No map data</h2>

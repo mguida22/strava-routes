@@ -1,4 +1,4 @@
-export type ActivityPath = GeoJSON.FeatureCollection<GeoJSON.LineString>;
+export type ActivityRoute = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
 /** A strava activity as represented by the Strava API */
 export interface ApiActivity {

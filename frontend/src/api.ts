@@ -1,4 +1,4 @@
-import { ExportActivity, ActivityPath } from "./types";
+import { ExportActivity, ActivityRoute } from "./types";
 
 const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 
@@ -7,7 +7,7 @@ const USER_ID = 1;
 
 async function fetchActivityGeojson(
   activityId: string,
-): Promise<ActivityPath | null> {
+): Promise<ActivityRoute | null> {
   const response = await fetch(
     `${SERVER_URL}/${USER_ID}/activities/${activityId}`,
   );

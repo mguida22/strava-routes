@@ -1,5 +1,5 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
-import { ExportActivity, ActivityPath } from "../types";
+import { ExportActivity, ActivityRoute } from "../types";
 import ActivitiesMapOverlay from "../components/activities-map-overlay";
 import ActivityMap from "../components/activity-map";
 import { useEffect, useState } from "react";
@@ -12,19 +12,19 @@ export const Route = createFileRoute("/map")({
 
 function ActivitiesMap() {
   const activities = useLoaderData({ from: "/map" });
-  const [activityPaths, setActivityPaths] = useState<ActivityPath[]>([]);
+  const [activityRoutes, setActivityRoutes] = useState<ActivityRoute[]>([]);
 
   useEffect(() => {
     (async () => {
-      const paths = await getAllActivityPaths(activities);
-      setActivityPaths(paths);
+      const routes = await getAllActivityRoutes(activities);
+      setActivityRoutes(routes);
     })();
   }, [activities]);
 
   return (
     <>
       <div className="w-full h-[calc(100vh-64px)] relative">
-        <ActivityMap activityPaths={activityPaths} />
+        <ActivityMap activityRoutes={activityRoutes} />
       </div>
 
       <div className="absolute top-0 left-0 h-auto w-auto mx-8 my-24 bg-white bg-opacity-75 flex flex-col items-center justify-center rounded">
@@ -34,10 +34,10 @@ function ActivitiesMap() {
   );
 }
 
-async function getAllActivityPaths(
+async function getAllActivityRoutes(
   activities: ExportActivity[]
-): Promise<ActivityPath[]> {
-  const paths = await Promise.all(
+): Promise<ActivityRoute[]> {
+  const routes = await Promise.all(
     activities.map(async (activity) => {
       try {
         const activityGeojson = await fetchActivityGeojson(
@@ -59,6 +59,6 @@ async function getAllActivityPaths(
     })
   );
 
-  const filteredPaths = paths.filter((p) => p != null);
-  return filteredPaths;
+  const filteredRoutes = routes.filter((r) => r != null);
+  return filteredRoutes;
 }
