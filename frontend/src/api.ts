@@ -4,7 +4,7 @@ import { ExportActivity, ActivityRoute } from "./types";
 const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 
 // TODO: placeholder until we have a user system setup
-const USER_ID = 1;
+const USER_ID = "66ab058b157551037dcf0401";
 
 async function fetchActivityGeojson(
   activityId: string,
@@ -57,7 +57,11 @@ interface ApiActivityRoute {
 }
 
 function polylineToGeojson(route: ApiActivityRoute): ActivityRoute {
-  const coordinates = decodePolyline(route.polyline);
+  // decode into LatLng, then reverse order for Mapbox
+  const coordinates = decodePolyline(route.polyline).map(([lat, lng]) => [
+    lng,
+    lat,
+  ]);
 
   const geojson = {
     type: "FeatureCollection",
@@ -90,9 +94,7 @@ async function fetchAllActivityRoutes(): Promise<ActivityRoute[]> {
 
     const routes: ApiActivityRoute[] = await response.json();
 
-    const geojsonRoutes = routes.map(polylineToGeojson);
-
-    return geojsonRoutes;
+    return routes.map(polylineToGeojson);
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch activities/routes");
