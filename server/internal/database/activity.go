@@ -92,3 +92,28 @@ func (m ActivityModel) Upsert(activity *Activity) error {
 
 	return nil
 }
+
+func (m ActivityModel) GetAll(userID string) (*[]Activity, error) {
+	collection := m.db.Collection("activities")
+	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
+	defer cancel()
+
+	mongoUserID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{"athlete_id": mongoUserID}
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var activities []Activity
+	if err := cursor.All(ctx, &activities); err != nil {
+		return nil, err
+	}
+
+	return &activities, nil
+}
