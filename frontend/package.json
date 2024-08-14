@@ -11,6 +11,7 @@
     "data": "npx tsx data/process.ts"
   },
   "dependencies": {
+    "@googlemaps/polyline-codec": "^1.0.28",
     "@tanstack/react-router": "^1.46.0",
     "dotenv": "^16.4.5",
     "jsdom": "^24.1.0",
