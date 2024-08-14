@@ -34,6 +34,20 @@ type AthleteModel struct {
 	db *mongo.Database
 }
 
+func (m AthleteModel) GetOne(id primitive.ObjectID) (*Athlete, error) {
+	collection := m.db.Collection("athletes")
+	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
+	defer cancel()
+
+	var athlete Athlete
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&athlete)
+	if err != nil {
+		return nil, err
+	}
+
+	return &athlete, nil
+}
+
 func (m AthleteModel) UpsertByStravaID(athlete *Athlete) (*Athlete, error) {
 	collection := m.db.Collection("athletes")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
