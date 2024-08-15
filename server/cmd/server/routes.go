@@ -15,7 +15,6 @@ func (app *application) routes() *mux.Router {
 	r.HandleFunc("/strava/token-refresh", app.stravaTokenRefreshHandler).Methods("POST")
 
 	r.HandleFunc("/{userId}/activities", app.activitiesHandler).Methods("GET")
-	r.HandleFunc("/{userId}/activities/routes", app.activitiesRoutesHandler).Methods("GET")
 	r.HandleFunc("/{userId}/activities/{activityId}", app.activityHandler).Methods("GET")
 	r.HandleFunc("/{userId}/sync-activities", app.stravaSyncActivitiesHandler).Methods("GET")
 

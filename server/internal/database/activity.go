@@ -93,6 +93,35 @@ func (m ActivityModel) Upsert(activity *Activity) error {
 	return nil
 }
 
+func (m ActivityModel) GetOne(userID string, activityID string) (*Activity, error) {
+	collection := m.db.Collection("activities")
+	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
+	defer cancel()
+
+	mongoUserID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	mongoActivityID, err := primitive.ObjectIDFromHex(activityID)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{
+		"athlete_id": mongoUserID,
+		"_id":        mongoActivityID,
+	}
+
+	var activity Activity
+	err = collection.FindOne(ctx, filter).Decode(&activity)
+	if err != nil {
+		return nil, err
+	}
+
+	return &activity, nil
+}
+
 func (m ActivityModel) GetAll(userID string) (*[]Activity, error) {
 	collection := m.db.Collection("activities")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
