@@ -1,4 +1,4 @@
-import { ApiActivity } from "../types";
+import { StravaApiActivity } from "../types";
 import {
   useStravaAuth,
   setStravaAuthInLocalStorage,
@@ -61,7 +61,7 @@ class StravaApiWrapper {
 
       if (!response.ok) {
         throw new Error(
-          `StravaApiWrapper HTTP error! status: ${response.status}`
+          `StravaApiWrapper HTTP error! status: ${response.status}`,
         );
       }
 
@@ -111,7 +111,7 @@ class StravaApiWrapper {
   }
 
   /** Fetch the first 30 activities for the logged in user */
-  async getAthleteActivities(): Promise<ApiActivity[]> {
+  async getAthleteActivities(): Promise<StravaApiActivity[]> {
     return this.request({ method: "GET", path: "/athlete/activities" });
   }
 }

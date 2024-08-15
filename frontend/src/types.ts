@@ -1,7 +1,26 @@
-export type ActivityRoute = GeoJSON.FeatureCollection<GeoJSON.LineString>;
+export interface Activity {
+  distance: number;
+  elapsed_time: number;
+  id: string;
+  moving_time: number;
+  name: string;
+  polyline: string;
+  sport_type: string;
+  start_date_local: string;
+  start_date_ms: number;
+  strava_id: number;
+}
+
+export type ActivityRoute = GeoJSON.FeatureCollection<
+  GeoJSON.LineString,
+  {
+    id: string;
+    sport_type: string;
+  }
+>;
 
 /** A strava activity as represented by the Strava API */
-export interface ApiActivity {
+export interface StravaApiActivity {
   resource_state: number;
   athlete: {
     id: number;
@@ -68,7 +87,7 @@ export interface ApiActivity {
 }
 
 /** A strava activity as represented by the Strava Export */
-export interface ExportActivity {
+export interface StravaExportActivity {
   activity_id: string;
   activity_date: string;
   activity_date_ms: number;

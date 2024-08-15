@@ -1,5 +1,5 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
-import { fetchActivityDetail, fetchActivityGeojson } from "../api";
+import { fetchActivityDetail } from "../api";
 import ActivityMap from "../components/activity-map";
 import ActivityDetailOverlay from "../components/activity-detail-overlay";
 
@@ -7,19 +7,19 @@ export const Route = createFileRoute("/activity/$id")({
   component: ActivityDetail,
   loader: async ({ params: { id } }) => {
     const activity = await fetchActivityDetail(id);
-    const activityRoute = await fetchActivityGeojson(id);
 
-    return { activity, activityRoute };
+    return { activity };
   },
 });
 
 function ActivityDetail() {
-  const { activity, activityRoute } = useLoaderData({ from: "/activity/$id" });
+  const { activity } = useLoaderData({ from: "/activity/$id" });
+
   return (
     <>
       <div className="w-full h-[calc(100vh-64px)] relative">
-        {activityRoute != null ? (
-          <ActivityMap activityRoutes={[activityRoute]} />
+        {activity.polyline != "" ? (
+          <ActivityMap activities={[activity]} />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <h2 className="text-lg">No map data</h2>

@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { fetchActivities } from "../api";
-import { ExportActivity } from "../types";
+import { Activity } from "../types";
 import { useEffect, useState } from "react";
+import { formatDateTime } from "../utils/formatters";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -10,8 +11,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const activities = useLoaderData({ from: "/" });
-  const [sortKey, setSortKey] = useState<SortKey>("activity_date");
-  const [sortType, setSortType] = useState<SortType>("asc");
+  const [sortKey, setSortKey] = useState<SortKey>("start_date_ms");
+  const [sortType, setSortType] = useState<SortType>("desc");
   const [filterText, setFilterText] = useState("");
   const [activitiesToRender, setActivitiesToRender] = useState(
     filterAndSortActivities(activities, filterText, sortKey, sortType)
@@ -55,19 +56,19 @@ function Index() {
         <thead>
           <tr>
             <th
-              onClick={() => handleSort("activity_name")}
+              onClick={() => handleSort("name")}
               className="text-left cursor-pointer"
             >
               Name
             </th>
             <th
-              onClick={() => handleSort("activity_type")}
+              onClick={() => handleSort("sport_type")}
               className="text-left cursor-pointer"
             >
               Type
             </th>
             <th
-              onClick={() => handleSort("activity_date")}
+              onClick={() => handleSort("start_date_ms")}
               className="text-right cursor-pointer"
             >
               Date
@@ -76,12 +77,14 @@ function Index() {
         </thead>
         <tbody>
           {activitiesToRender.map((a) => (
-            <tr key={a.activity_id}>
+            <tr key={a.id}>
               <td className="py-2">
-                <Link to={`/activity/${a.activity_id}`}>{a.activity_name}</Link>
+                <Link to={`/activity/${a.id}`}>{a.name}</Link>
               </td>
-              <td className="py-2">{a.activity_type}</td>
-              <td className="py-2 text-right">{a.activity_date}</td>
+              <td className="py-2">{a.sport_type}</td>
+              <td className="py-2 text-right">
+                {formatDateTime(a.start_date_local)}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -90,27 +93,27 @@ function Index() {
   );
 }
 
-type SortKey = "activity_name" | "activity_date" | "activity_type";
+type SortKey = "name" | "start_date_ms" | "sport_type";
 type SortType = "asc" | "desc";
 
 function filterAndSortActivities(
-  activities: ExportActivity[],
+  activities: Activity[],
   filterText: string,
   sortKey: SortKey,
   sortType: SortType
-): ExportActivity[] {
+): Activity[] {
   const filteredActivities = activities.filter(
     (a) =>
-      a.activity_name.toLowerCase().includes(filterText.toLowerCase()) ||
-      a.activity_type.toLowerCase().includes(filterText.toLowerCase())
+      a.name.toLowerCase().includes(filterText.toLowerCase()) ||
+      a.sport_type.toLowerCase().includes(filterText.toLowerCase())
   );
 
   if (sortKey != null && sortType != null) {
     filteredActivities.sort((a, b) => {
-      if (sortKey === "activity_date") {
+      if (sortKey === "start_date_ms") {
         return sortType === "asc"
-          ? a.activity_date_ms - b.activity_date_ms
-          : b.activity_date_ms - a.activity_date_ms;
+          ? a.start_date_ms - b.start_date_ms
+          : b.start_date_ms - a.start_date_ms;
       }
 
       return sortType === "asc"

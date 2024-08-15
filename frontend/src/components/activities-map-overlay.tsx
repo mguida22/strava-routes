@@ -1,7 +1,7 @@
-import { ExportActivity } from "./types";
+import { Activity } from "../types";
 
 interface ActivitiesMapOverlayProps {
-  activities: ExportActivity[];
+  activities: Activity[];
 }
 
 function ActivitiesMapOverlay({ activities }: ActivitiesMapOverlayProps) {
@@ -11,7 +11,7 @@ function ActivitiesMapOverlay({ activities }: ActivitiesMapOverlayProps) {
       <div className="max-h-[400px] overflow-y-auto">
         <ul>
           {activities.map((activity) => (
-            <li key={activity.activity_id}>{activity.activity_name}</li>
+            <li key={activity.id}>{activity.name}</li>
           ))}
         </ul>
       </div>

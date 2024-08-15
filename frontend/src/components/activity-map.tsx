@@ -1,12 +1,41 @@
-import { useRef, useEffect } from "react";
+import { decode as decodePolyline } from "@googlemaps/polyline-codec";
+import { useRef, useEffect, useMemo } from "react";
 import mapboxgl, { LngLatBoundsLike, GeoJSONSource } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { ActivityRoute } from "../types";
+import { Activity, ActivityRoute } from "../types";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWd1aWRhMjIiLCJhIjoiY2x5NmZ2NWtzMDlsZTJrb3VhM202M2lzNCJ9.wOPjmRNcUEXtQXE8zBirlw";
 
 const DEFAULT_PADDING = 0.02;
+
+function activityToActivityRoute(activity: Activity): ActivityRoute {
+  // decode into LatLng, then reverse order for Mapbox
+  const coordinates = decodePolyline(activity.polyline).map(([lat, lng]) => [
+    lng,
+    lat,
+  ]);
+
+  const route = {
+    type: "FeatureCollection",
+    properties: {},
+    features: [
+      {
+        type: "Feature",
+        properties: {
+          id: activity.id,
+          sport_type: activity.sport_type,
+        },
+        geometry: {
+          type: "LineString",
+          coordinates,
+        },
+      },
+    ],
+  } as ActivityRoute;
+
+  return route;
+}
 
 function getBoundingBoxFromFeatureCollections(
   routes: ActivityRoute[]
@@ -48,12 +77,21 @@ function geojsonFromActivityRoutes(
 }
 
 interface ActivityMapProps {
-  activityRoutes: ActivityRoute[];
+  activities: Activity[];
 }
 
-export default function ActivityMap({ activityRoutes }: ActivityMapProps) {
+export default function ActivityMap({ activities }: ActivityMapProps) {
   const mapContainer = useRef(null);
   const map = useRef<mapboxgl.Map | null>(null);
+
+  const activityRoutes = useMemo(
+    () =>
+      activities
+        // some activities don't have routes associated with them
+        .filter((a) => a.polyline.length > 0)
+        .map(activityToActivityRoute),
+    [activities]
+  );
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -109,7 +147,7 @@ export default function ActivityMap({ activityRoutes }: ActivityMapProps) {
         padding: 20,
       });
     }
-  }, [activityRoutes]);
+  }, [activities]);
 
   return <div ref={mapContainer} className="h-full w-full" />;
 }
