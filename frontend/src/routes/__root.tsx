@@ -2,7 +2,7 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import "../index.css";
 
-import StravaAuthButton from "../strava/auth-button";
+import StravaAuthButton from "../components/auth-button";
 
 export const Route = createRootRoute({
   component: () => (

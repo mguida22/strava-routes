@@ -1,4 +1,4 @@
-import { useStravaAuth } from "./user-provider";
+import { useStravaAuth } from "../user-provider";
 
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
 const HOSTNAME = import.meta.env.VITE_HOSTNAME;

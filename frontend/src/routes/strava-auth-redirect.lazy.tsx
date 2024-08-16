@@ -1,6 +1,6 @@
 import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useCallback, useRef } from "react";
-import { useStravaAuth } from "../strava/user-provider";
+import { useStravaAuth } from "../user-provider";
 
 export const Route = createLazyFileRoute("/strava-auth-redirect")({
   component: StravaRedirect,
