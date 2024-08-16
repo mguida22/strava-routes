@@ -1,6 +1,6 @@
 import { createLazyFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useCallback, useRef } from "react";
-import { useStravaAuth } from "../user-provider";
+import { useUser } from "../user-provider";
 
 export const Route = createLazyFileRoute("/strava-auth-redirect")({
   component: StravaRedirect,
@@ -10,7 +10,7 @@ const API_HOSTNAME = import.meta.env.VITE_API_HOSTNAME;
 
 function StravaRedirect() {
   const navigate = useNavigate();
-  const { setStravaAuth } = useStravaAuth();
+  const { setUser } = useUser();
   const exchangeAttempted = useRef(false);
 
   const exchangeToken = useCallback(
@@ -31,7 +31,7 @@ function StravaRedirect() {
 
         const data = await response.json();
 
-        setStravaAuth({
+        setUser({
           userId: data.id,
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
@@ -43,7 +43,7 @@ function StravaRedirect() {
         navigate({ to: "/", replace: true });
       }
     },
-    [navigate, setStravaAuth]
+    [navigate, setUser]
   );
 
   useEffect(() => {

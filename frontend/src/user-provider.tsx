@@ -1,13 +1,13 @@
 import React, { useCallback } from "react";
 
-export interface StravaAuthInfo {
+export interface UserInfo {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
   userId: string;
 }
 
-function getStravaAuthFromLocalStorage(): StravaAuthInfo | null {
+function getUserFromLocalStorage(): UserInfo | null {
   try {
     const userId = localStorage.getItem("userId");
     const accessToken = localStorage.getItem("stravaAccessToken");
@@ -43,69 +43,63 @@ function getStravaAuthFromLocalStorage(): StravaAuthInfo | null {
   }
 }
 
-export function setStravaAuthInLocalStorage({
+export function setUserInLocalStorage({
   userId,
   accessToken,
   refreshToken,
   expiresAt,
-}: StravaAuthInfo) {
+}: UserInfo) {
   localStorage.setItem("userId", userId);
   localStorage.setItem("stravaAccessToken", accessToken);
   localStorage.setItem("stravaRefreshToken", refreshToken);
   localStorage.setItem("stravaExpiresAt", expiresAt.toString());
 }
 
-interface StravaAuthContext {
-  stravaAuth: StravaAuthInfo | null;
-  setStravaAuth: (authUser: StravaAuthInfo) => void;
+interface UserContext {
+  user: UserInfo | null;
+  setUser: (user: UserInfo) => void;
 }
 
-const stravaAuthContext = React.createContext<StravaAuthContext>({
-  stravaAuth: null,
-  setStravaAuth: () => {},
+const userContext = React.createContext<UserContext>({
+  user: null,
+  setUser: () => {},
 });
 
-function initializeStravaAuth(): StravaAuthInfo | null {
-  const stravaAuth = getStravaAuthFromLocalStorage();
-  if (!stravaAuth) {
+function initializeUser(): UserInfo | null {
+  const userAuth = getUserFromLocalStorage();
+  if (!userAuth) {
     return null;
   }
 
   return {
-    userId: stravaAuth.userId,
-    accessToken: stravaAuth.accessToken,
-    refreshToken: stravaAuth.refreshToken,
-    expiresAt: stravaAuth.expiresAt,
+    userId: userAuth.userId,
+    accessToken: userAuth.accessToken,
+    refreshToken: userAuth.refreshToken,
+    expiresAt: userAuth.expiresAt,
   };
 }
 
-export function StravaAuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [stravaAuth, _setStravaAuth] = React.useState<StravaAuthInfo | null>(
-    initializeStravaAuth()
-  );
+export function UserProvider({ children }: { children: React.ReactNode }) {
+  const [user, _setUser] = React.useState<UserInfo | null>(initializeUser());
 
-  /** Updates the Strava Auth User in state and localStorage so this info
+  /** Updates the User in state and localStorage so this info
    * persists across page reloads
    */
-  const setStravaAuth = useCallback(
-    (authUser: StravaAuthInfo) => {
-      setStravaAuthInLocalStorage(authUser);
-      _setStravaAuth(authUser);
+  const setUser = useCallback(
+    (user: UserInfo) => {
+      setUserInLocalStorage(user);
+      _setUser(user);
     },
-    [_setStravaAuth]
+    [_setUser]
   );
 
   return (
-    <stravaAuthContext.Provider value={{ stravaAuth, setStravaAuth }}>
+    <userContext.Provider value={{ user, setUser }}>
       {children}
-    </stravaAuthContext.Provider>
+    </userContext.Provider>
   );
 }
 
-export function useStravaAuth() {
-  return React.useContext(stravaAuthContext);
+export function useUser() {
+  return React.useContext(userContext);
 }
