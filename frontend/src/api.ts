@@ -1,42 +1,59 @@
-import { Activity } from "./types";
+import { useUser } from "./user-provider";
+import { useQuery } from "@tanstack/react-query";
 
 const SERVER_URL = import.meta.env.VITE_API_HOSTNAME;
 
-// TODO: placeholder until we have a user system setup
-const USER_ID = "66ab058b157551037dcf0401";
-
-async function fetchActivityDetail(activityId: string): Promise<Activity> {
-  const url = `${SERVER_URL}/${USER_ID}/activities/${activityId}`;
+async function makeRequest(url: string) {
   try {
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error(response.status, response.statusText);
-      throw new Error(`Error response while fetching ${url}`);
+      throw new Error(
+        `Error response while fetching ${url}. ${response.status}: ${response.statusText}`,
+      );
     }
 
     return await response.json();
   } catch (error) {
-    console.error(error);
-    throw new Error(`Failed to fetch ${url}`);
+    console.error(`Failed to fetch ${url}`, error);
+    throw error;
   }
 }
 
-async function fetchActivities(): Promise<Activity[]> {
-  const url = `${SERVER_URL}/${USER_ID}/activities`;
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      console.error(response.status, response.statusText);
-      throw new Error(`Error response while fetching ${url}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Failed to fetch ${url}`);
+function validateUserId(userId: string | null) {
+  if (userId == null) {
+    throw new Error("User not logged in");
   }
 }
 
-export { fetchActivities, fetchActivityDetail };
+export function useActivities() {
+  const { user } = useUser();
+  const userId = user?.userId ?? null;
+
+  return useQuery({
+    queryKey: ["activities", { userId }] as const,
+    queryFn: ({ queryKey }) => {
+      const [_key, { userId }] = queryKey;
+      validateUserId(userId);
+
+      const url = `${SERVER_URL}/${userId}/activities`;
+      return makeRequest(url);
+    },
+  });
+}
+
+export function useActivity(activityId: string) {
+  const { user } = useUser();
+  const userId = user?.userId ?? null;
+
+  return useQuery({
+    queryKey: ["activity", { userId, activityId }] as const,
+    queryFn: ({ queryKey }) => {
+      const [_key, { userId, activityId }] = queryKey;
+      validateUserId(userId);
+
+      const url = `${SERVER_URL}/${userId}/activities/${activityId}`;
+      return makeRequest(url);
+    },
+  });
+}

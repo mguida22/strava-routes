@@ -1,16 +1,32 @@
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
-import { fetchActivities } from "../api";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity } from "../types";
 import { useEffect, useState } from "react";
 import { formatDateTime } from "../utils/formatters";
+import { useActivities } from "../api";
 
 export const Route = createFileRoute("/")({
   component: Index,
-  loader: async () => await fetchActivities(),
 });
 
 function Index() {
-  const activities = useLoaderData({ from: "/" });
+  const activities = useActivities();
+
+  if (activities.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (activities.isError) {
+    return <div>Error loading activities: {activities.error.message}</div>;
+  }
+
+  return <ActivityTable activities={activities.data} />;
+}
+
+interface ActivityTableProps {
+  activities: Activity[];
+}
+
+function ActivityTable({ activities }: ActivityTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("start_date_ms");
   const [sortType, setSortType] = useState<SortType>("desc");
   const [filterText, setFilterText] = useState("");
