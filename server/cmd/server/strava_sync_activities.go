@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mguida22/strava-routes/server/internal/database"
@@ -162,7 +163,29 @@ func requestOnePageOfActivities(accessToken string, page int) ([]StravaSummaryAc
 	return stravaSummaryActivities, nil
 }
 
+func validateStravaCredentials(athlete *database.Athlete) error {
+	if athlete.AccessToken == "" {
+		return fmt.Errorf("missing access token")
+	}
+
+	if athlete.RefreshToken == "" {
+		return fmt.Errorf("missing refresh token")
+	}
+
+	// check if the expiresAt time has passed
+	if athlete.AccessTokenExpiresAt < int(time.Now().Unix()) {
+		return fmt.Errorf("access token has expired")
+	}
+
+	return nil
+}
+
 func (app *application) fetchAndStoreActivities(athlete *database.Athlete) (int, error) {
+	err := validateStravaCredentials(athlete)
+	if err != nil {
+		return 0, err
+	}
+
 	page := 1
 	count := 0
 	for {
@@ -216,15 +239,19 @@ func (app *application) stravaSyncActivitiesHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	count, err := app.fetchAndStoreActivities(athlete)
-	if err != nil {
-		app.logger.PrintError(err, nil)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	go func() {
+		count, err := app.fetchAndStoreActivities(athlete)
+		if err != nil {
+			app.logger.PrintError(err, nil)
+			return
+		}
+
+		msg := fmt.Sprintf("synced %d activities for athlete %s", count, athlete.ID.Hex())
+		app.logger.PrintInfo(msg, nil)
+	}()
 
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write([]byte("Synced " + strconv.Itoa(count) + " activities"))
+	_, err = w.Write([]byte(`{"message": "syncing activities"}`))
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
