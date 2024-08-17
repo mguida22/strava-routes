@@ -163,25 +163,30 @@ func requestOnePageOfActivities(accessToken string, page int) ([]StravaSummaryAc
 	return stravaSummaryActivities, nil
 }
 
-func validateStravaCredentials(athlete *database.Athlete) error {
+func (app *application) validateStravaCredentials(athlete *database.Athlete) (*database.Athlete, error) {
 	if athlete.AccessToken == "" {
-		return fmt.Errorf("missing access token")
+		return nil, fmt.Errorf("missing access token")
 	}
 
 	if athlete.RefreshToken == "" {
-		return fmt.Errorf("missing refresh token")
+		return nil, fmt.Errorf("missing refresh token")
 	}
 
 	// check if the expiresAt time has passed
 	if athlete.AccessTokenExpiresAt < int(time.Now().Unix()) {
-		return fmt.Errorf("access token has expired")
+		athlete, err := app.refreshAuthCode(athlete.RefreshToken)
+		if err != nil {
+			return nil, err
+		}
+
+		return athlete, nil
 	}
 
-	return nil
+	return athlete, nil
 }
 
 func (app *application) fetchAndStoreActivities(athlete *database.Athlete) (int, error) {
-	err := validateStravaCredentials(athlete)
+	athlete, err := app.validateStravaCredentials(athlete)
 	if err != nil {
 		return 0, err
 	}
@@ -240,13 +245,15 @@ func (app *application) stravaSyncActivitiesHandler(w http.ResponseWriter, r *ht
 	}
 
 	go func() {
+		msg := fmt.Sprintf("syncing activities for athlete %s", athlete.ID.Hex())
+		app.logger.PrintInfo(msg, nil)
 		count, err := app.fetchAndStoreActivities(athlete)
 		if err != nil {
 			app.logger.PrintError(err, nil)
 			return
 		}
 
-		msg := fmt.Sprintf("synced %d activities for athlete %s", count, athlete.ID.Hex())
+		msg = fmt.Sprintf("synced %d activities for athlete %s", count, athlete.ID.Hex())
 		app.logger.PrintInfo(msg, nil)
 	}()
 

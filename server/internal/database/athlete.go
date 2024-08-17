@@ -65,13 +65,7 @@ func (m AthleteModel) UpsertByStravaID(athlete *Athlete) (*Athlete, error) {
 		return nil, result.Err()
 	}
 
-	var updatedAthlete Athlete
-	err := result.Decode(&updatedAthlete)
-	if err != nil {
-		return nil, err
-	}
-
-	return &updatedAthlete, nil
+	return athlete, nil
 }
 
 func (m AthleteModel) GetAthleteResponseJSON(athlete *Athlete) ([]byte, error) {
