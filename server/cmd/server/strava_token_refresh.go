@@ -5,9 +5,11 @@ import (
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/mguida22/strava-routes/server/internal/database"
 )
 
-func (app *application) refreshAuthCode(refreshToken string) ([]byte, error) {
+func (app *application) refreshAuthCode(refreshToken string) (*database.Athlete, error) {
 	url := "https://www.strava.com/oauth/token?client_id=" + os.Getenv("STRAVA_CLIENT_ID") + "&client_secret=" + os.Getenv("STRAVA_CLIENT_SECRET") + "&refresh_token=" + refreshToken + "&grant_type=refresh_token"
 
 	resp, err := http.Post(url, "application/json", nil)
@@ -31,18 +33,20 @@ func (app *application) refreshAuthCode(refreshToken string) ([]byte, error) {
 		return nil, err
 	}
 
-	encodedJSON, err := json.Marshal(athlete)
-	if err != nil {
-		return nil, err
-	}
-
-	return encodedJSON, nil
+	return athlete, nil
 }
 
 func (app *application) stravaTokenRefreshHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken := r.FormValue("refresh_token")
 
-	authInfo, err := app.refreshAuthCode(refreshToken)
+	athlete, err := app.refreshAuthCode(refreshToken)
+	if err != nil {
+		app.logger.PrintError(err, nil)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := app.models.Athletes.GetAthleteResponseJSON(athlete)
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -50,7 +54,7 @@ func (app *application) stravaTokenRefreshHandler(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(authInfo)
+	_, err = w.Write(resp)
 	if err != nil {
 		app.logger.PrintError(err, nil)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
