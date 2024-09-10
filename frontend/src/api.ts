@@ -39,6 +39,7 @@ export function useActivities() {
       const url = `${SERVER_URL}/${userId}/activities`;
       return makeRequest(url);
     },
+    enabled: !!userId,
   });
 }
 
@@ -55,5 +56,10 @@ export function useActivity(activityId: string) {
       const url = `${SERVER_URL}/${userId}/activities/${activityId}`;
       return makeRequest(url);
     },
+    enabled: !!userId,
   });
+}
+
+export async function syncActivities(userId: string) {
+  return await makeRequest(`${SERVER_URL}/${userId}/sync-activities`);
 }

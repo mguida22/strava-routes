@@ -3,23 +3,49 @@ import { Activity } from "../types";
 import { useEffect, useState } from "react";
 import { formatDateTime } from "../utils/formatters";
 import { useActivities } from "../api";
+import { useUser } from "../user-provider";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
+  const { user } = useUser();
   const activities = useActivities();
 
+  if (user == null) {
+    return (
+      <EmptyActivityTable>
+        <p>Connect strava to view your activities</p>
+      </EmptyActivityTable>
+    );
+  }
+
   if (activities.isPending) {
-    return <div>Loading...</div>;
+    return <EmptyActivityTable>Loading...</EmptyActivityTable>;
   }
 
   if (activities.isError) {
-    return <div>Error loading activities: {activities.error.message}</div>;
+    return (
+      <EmptyActivityTable>
+        Error loading activities: {activities.error.message}
+      </EmptyActivityTable>
+    );
+  }
+
+  if (activities.data.length === 0) {
+    return <EmptyActivityTable>No activities, try syncing.</EmptyActivityTable>;
   }
 
   return <ActivityTable activities={activities.data} />;
+}
+
+function EmptyActivityTable({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex justify-center items-center w-full mt-12">
+      {children}
+    </div>
+  );
 }
 
 interface ActivityTableProps {

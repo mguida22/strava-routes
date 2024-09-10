@@ -174,7 +174,7 @@ func (app *application) validateStravaCredentials(athlete *database.Athlete) (*d
 
 	// check if the expiresAt time has passed
 	if athlete.AccessTokenExpiresAt < int(time.Now().Unix()) {
-		athlete, err := app.refreshAuthCode(athlete.RefreshToken)
+		athlete, err := app.models.Athletes.RefreshAuthCode(athlete)
 		if err != nil {
 			return nil, err
 		}

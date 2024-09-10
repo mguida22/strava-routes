@@ -3,6 +3,9 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -58,11 +61,60 @@ func (m AthleteModel) UpsertByStravaID(athlete *Athlete) (*Athlete, error) {
 		"$set": athlete,
 	}
 
-	opts := options.FindOneAndUpdate().SetUpsert(true)
+	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
 
-	result := collection.FindOneAndUpdate(ctx, filter, update, opts)
-	if result.Err() != nil {
-		return nil, result.Err()
+	var updatedAthlete Athlete
+	err := collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedAthlete)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updatedAthlete, nil
+}
+
+type StravaRefreshTokenResponse struct {
+	TokenType    string `json:"token_type"`
+	AccessToken  string `json:"access_token"`
+	ExpiresAt    int    `json:"expires_at"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (m AthleteModel) RefreshAuthCode(athlete *Athlete) (*Athlete, error) {
+	url := "https://www.strava.com/oauth/token?client_id=" + os.Getenv("STRAVA_CLIENT_ID") + "&client_secret=" + os.Getenv("STRAVA_CLIENT_SECRET") + "&refresh_token=" + athlete.RefreshToken + "&grant_type=refresh_token"
+
+	resp, err := http.Post(url, "application/json", nil)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var u StravaRefreshTokenResponse
+	if err := json.Unmarshal(body, &u); err != nil {
+		return nil, err
+	}
+
+	collection := m.db.Collection("athletes")
+	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
+	defer cancel()
+
+	filter := bson.M{"_id": athlete.ID}
+	update := bson.M{
+		"$set": bson.M{
+			"access_token":            u.AccessToken,
+			"access_token_expires_at": u.ExpiresAt,
+			"refresh_token":           u.RefreshToken,
+		},
+	}
+
+	_, err = collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return nil, err
 	}
 
 	return athlete, nil
