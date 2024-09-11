@@ -111,13 +111,15 @@ func (m AthleteModel) RefreshAuthCode(athlete *Athlete) (*Athlete, error) {
 			"refresh_token":           u.RefreshToken,
 		},
 	}
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
-	_, err = collection.UpdateOne(ctx, filter, update)
+	var updatedAthlete Athlete
+	err = collection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedAthlete)
 	if err != nil {
 		return nil, err
 	}
 
-	return athlete, nil
+	return &updatedAthlete, nil
 }
 
 func (m AthleteModel) GetAthleteResponseJSON(athlete *Athlete) ([]byte, error) {

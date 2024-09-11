@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mguida22/strava-routes/server/internal/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var STRAVA_PAGE_SIZE = 30
@@ -129,8 +130,8 @@ func activityFromSummaryActivity(summaryActivity StravaSummaryActivity) *databas
 	}
 }
 
-func requestOnePageOfActivities(accessToken string, page int) ([]StravaSummaryActivity, error) {
-	url := "https://www.strava.com/api/v3/athlete/activities?page=" + strconv.Itoa(page) + "&per_page=" + strconv.Itoa(STRAVA_PAGE_SIZE)
+func requestOnePageOfActivities(accessToken string, page int, after int64) ([]StravaSummaryActivity, error) {
+	url := "https://www.strava.com/api/v3/athlete/activities?page=" + strconv.Itoa(page) + "&per_page=" + strconv.Itoa(STRAVA_PAGE_SIZE) + "&after=" + strconv.FormatInt(after, 10)
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -185,8 +186,35 @@ func (app *application) validateStravaCredentials(athlete *database.Athlete) (*d
 	return athlete, nil
 }
 
+func (app *application) getLastSyncedActivityUnixTimestamp(athlete *database.Athlete) (int64, error) {
+	activity, err := app.models.Activities.GetLastActivity(athlete.ID)
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			return 0, err
+		}
+
+		return 0, nil
+	}
+
+	if activity == nil {
+		return 0, nil
+	}
+
+	startDate, err := time.Parse(time.RFC3339, activity.StartDate)
+	if err != nil {
+		return 0, err
+	}
+
+	return startDate.Unix(), nil
+}
+
 func (app *application) fetchAndStoreActivities(athlete *database.Athlete) (int, error) {
 	athlete, err := app.validateStravaCredentials(athlete)
+	if err != nil {
+		return 0, err
+	}
+
+	lastActivityTimestamp, err := app.getLastSyncedActivityUnixTimestamp(athlete)
 	if err != nil {
 		return 0, err
 	}
@@ -194,7 +222,7 @@ func (app *application) fetchAndStoreActivities(athlete *database.Athlete) (int,
 	page := 1
 	count := 0
 	for {
-		activities, err := requestOnePageOfActivities(athlete.AccessToken, page)
+		activities, err := requestOnePageOfActivities(athlete.AccessToken, page, lastActivityTimestamp)
 		if err != nil {
 			return count, err
 		}

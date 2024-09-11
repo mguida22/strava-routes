@@ -122,6 +122,26 @@ func (m ActivityModel) GetOne(userID string, activityID string) (*Activity, erro
 	return &activity, nil
 }
 
+func (m ActivityModel) GetLastActivity(userID primitive.ObjectID) (*Activity, error) {
+	collection := m.db.Collection("activities")
+	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
+	defer cancel()
+
+	filter := bson.M{
+		"athlete_id": userID,
+	}
+
+	opts := options.FindOne().SetSort(bson.M{"start_date": -1})
+
+	var activity Activity
+	err := collection.FindOne(ctx, filter, opts).Decode(&activity)
+	if err != nil {
+		return nil, err
+	}
+
+	return &activity, nil
+}
+
 func (m ActivityModel) GetAll(userID string) (*[]Activity, error) {
 	collection := m.db.Collection("activities")
 	ctx, cancel := context.WithTimeout(context.Background(), OperationTimeout)
