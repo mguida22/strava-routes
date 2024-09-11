@@ -12,10 +12,10 @@ export const Route = createRootRoute({
           <Link to="/">
             <h1 className="text-3xl font-bold ">Strava Routes</h1>
           </Link>
-          <Link to="/" className="ml-12">
+          <Link to="/" className="[&.active]:text-orange-500 ml-12">
             Activities
           </Link>
-          <Link to="/map" className="ml-12">
+          <Link to="/map" className="[&.active]:text-orange-500 ml-12">
             Map
           </Link>
         </div>
