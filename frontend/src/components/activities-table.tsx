@@ -40,7 +40,7 @@ export function ActivitiesTable({ activities }: ActivitiesTableProps) {
   }, [activities, filterText, sortKey, sortType]);
 
   return (
-    <div className="w-full p-16">
+    <>
       <input
         type="text"
         placeholder="Filter activities"
@@ -86,7 +86,7 @@ export function ActivitiesTable({ activities }: ActivitiesTableProps) {
           ))}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }
 

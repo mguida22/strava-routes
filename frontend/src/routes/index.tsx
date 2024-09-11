@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useActivities } from "../api";
 import { useUser } from "../user-provider";
 import { ActivitiesTable } from "../components/activities-table";
+import { ActivitiesCharts } from "../components/activities-charts";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -35,7 +36,12 @@ function Index() {
     return <EmptyActivityTable>No activities, try syncing.</EmptyActivityTable>;
   }
 
-  return <ActivitiesTable activities={activities.data} />;
+  return (
+    <div className="w-full p-16">
+      <ActivitiesCharts activities={activities.data} />
+      <ActivitiesTable activities={activities.data} />
+    </div>
+  );
 }
 
 function EmptyActivityTable({ children }: { children: React.ReactNode }) {
