@@ -13,7 +13,10 @@ export function formatDateTime(dateString: string) {
 export function formatDistance(d: number) {
   // strava distances are in m, we want to convert to miles
   const miles = d / 1609.344;
-  return `${miles.toFixed(2)} miles`;
+  const formattedMiles = miles.toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  });
+  return `${formattedMiles} miles`;
 }
 
 export function formatDuration(d: number) {
