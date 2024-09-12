@@ -2,17 +2,22 @@ import { useMemo } from "react";
 import { Activity } from "../types";
 import { DateTime } from "luxon";
 
-function getWeight(count: number) {
-  if (count < 2) {
-    return 300;
+const getWeight = (time: number) => {
+  console.log(time);
+  if (time > 3600 * 4) {
+    return 700;
   }
 
-  if (count < 3) {
+  if (time > 3600 * 3) {
+    return 500;
+  }
+
+  if (time > 3600 * 1) {
     return 400;
   }
 
-  return 700;
-}
+  return 300;
+};
 
 interface ActivitiesCalendarGridProps {
   activities: Activity[];
@@ -21,7 +26,7 @@ interface ActivitiesCalendarGridProps {
 export function ActivitiesCalendarGrid({
   activities,
 }: ActivitiesCalendarGridProps) {
-  const activityCountByDate = useMemo(() => {
+  const activityTimeByDate = useMemo(() => {
     const countsByDay = {} as Record<string, number>;
     const today = DateTime.now();
     const oneYearAgo = today.minus({ years: 1 });
@@ -34,7 +39,9 @@ export function ActivitiesCalendarGrid({
       let isoDate = date.toISODate();
       if (isoDate != null) {
         countsByDay[isoDate] =
-          countsByDay[isoDate] == null ? 1 : countsByDay[isoDate] + 1;
+          countsByDay[isoDate] == null
+            ? activity.moving_time
+            : countsByDay[isoDate] + activity.moving_time;
       }
     }
 
@@ -54,9 +61,8 @@ export function ActivitiesCalendarGrid({
               {Array.from({ length: 7 }, (_, i) => i).map((day) => {
                 const date = weekStart.plus({ days: day });
                 const isoDate = date.toISODate();
-                const count = activityCountByDate[isoDate] ?? 0;
-                const weight = getWeight(count);
-                console.log(isoDate, count);
+                const time = activityTimeByDate[isoDate] ?? 0;
+                const weight = getWeight(time);
 
                 if (
                   date < DateTime.now().startOf("day").minus({ years: 1 }) ||
@@ -72,7 +78,7 @@ export function ActivitiesCalendarGrid({
                 return (
                   <div
                     key={day}
-                    className={`w-3 h-3 mb-1 mr-1 rounded-sm ${count > 0 ? `bg-orange-${weight}` : "bg-gray-200"}`}
+                    className={`w-3 h-3 mb-1 mr-1 rounded-sm ${time > 0 ? `bg-orange-${weight}` : "bg-gray-200"}`}
                   />
                 );
               })}
